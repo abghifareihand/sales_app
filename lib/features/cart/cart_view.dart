@@ -1,0 +1,179 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sales_app/core/assets/assets.gen.dart';
+import 'package:sales_app/core/utils/formatter.dart';
+import 'package:sales_app/features/cart/cart_view_model.dart';
+import 'package:sales_app/features/checkout/checkout_view.dart';
+import 'package:sales_app/ui/shared/custom_appbar.dart';
+import 'package:sales_app/ui/shared/custom_button.dart';
+import 'package:sales_app/ui/theme/app_colors.dart';
+import 'package:sales_app/ui/theme/app_fonts.dart';
+
+class CartView extends StatelessWidget {
+  const CartView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(title: 'Cart'),
+      backgroundColor: AppColors.white,
+      body: _buildBody(context),
+      bottomNavigationBar: _buildBottom(context),
+    );
+  }
+}
+
+Widget _buildBody(BuildContext context) {
+  final cart = Provider.of<CartViewModel>(context);
+  if (cart.items.isEmpty) {
+    return Center(
+      child: Text(
+        'Belum ada keranjang',
+        style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
+      ),
+    );
+  }
+
+  return ListView.separated(
+    padding: const EdgeInsets.all(16),
+    itemCount: cart.items.length,
+    separatorBuilder: (_, __) => const SizedBox(height: 12),
+    itemBuilder: (context, index) {
+      final cartItem = cart.items.values.toList()[index];
+      final product = cartItem.product;
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.gray),
+        ),
+        child: Row(
+          children: [
+            Assets.images.imageProduct.image(width: 60, height: 60),
+            const SizedBox(width: 12.0),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name ?? '',
+                    style: AppFonts.semiBold.copyWith(
+                      color: AppColors.black,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        Formatter.toRupiahDouble(product.sellingPrice ?? 0),
+                        style: AppFonts.medium.copyWith(
+                          color: AppColors.black,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              cart.removeProduct(product.id!);
+                            },
+                            child: Assets.svg.iconMin.svg(),
+                          ),
+                          SizedBox(
+                            width: 32,
+                            child: Center(
+                              child: Text(
+                                '${cartItem.quantity}',
+                                style: AppFonts.medium.copyWith(
+                                  color: AppColors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              cart.addProduct(product);
+                            },
+                            child: Assets.svg.iconAdd.svg(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildBottom(BuildContext context) {
+  final cart = Provider.of<CartViewModel>(context);
+
+  if (cart.items.isEmpty) {
+    return SizedBox.shrink();
+  }
+  
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: const BoxDecoration(
+      color: AppColors.white,
+      border: Border(top: BorderSide(color: AppColors.gray)),
+    ),
+    child: IntrinsicHeight(
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Total',
+                  style: AppFonts.medium.copyWith(
+                    color: AppColors.black,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  Formatter.toRupiahDouble(cart.totalPrice),
+                  style: AppFonts.semiBold.copyWith(
+                    color: AppColors.black,
+                    fontSize: 16,
+                    height: 0.8,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 32.0),
+          Expanded(
+            child: Button.filled(
+              onPressed:
+                  cart.items.isEmpty
+                      ? null
+                      : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => CheckoutView(
+                                  cartItems: cart.items.values.toList(),
+                                  totalPrice: cart.totalPrice,
+                                ),
+                          ),
+                        );
+                      },
+              label: 'Continue',
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
