@@ -70,7 +70,20 @@ Widget _buildBody(
           }
         },
       ),
-      const SizedBox(height: 16.0),
+      if (model.selectedOutlet == null) const SizedBox(height: 16.0),
+      if (model.selectedOutlet != null) ...[
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(
+            model.distanceError ?? 'Lokasi kamu dekat dengan outlet',
+            style: TextStyle(
+              color: model.distanceError != null ? Colors.red : Colors.green,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+
       Text(
         'Total Product',
         style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
@@ -140,6 +153,10 @@ Widget _buildBottom(
   CheckoutViewModel model,
   double totalPrice,
 ) {
+  if (model.isBusy) {
+    return SizedBox.shrink();
+  }
+
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: const BoxDecoration(
@@ -175,9 +192,8 @@ Widget _buildBottom(
           Expanded(
             child: Button.filled(
               onPressed:
-                  model.selectedOutlet == null
-                      ? null
-                      : () async {
+                  model.isCheckoutEnabled
+                      ? () async {
                         final cartViewModel = Provider.of<CartViewModel>(
                           context,
                           listen: false,
@@ -198,8 +214,10 @@ Widget _buildBottom(
                             );
                           }
                         }
-                      },
+                      }
+                      : null,
               label: 'Checkout',
+              isLoading: model.isBusy,
             ),
           ),
         ],

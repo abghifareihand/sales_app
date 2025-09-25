@@ -36,7 +36,7 @@ class AddOutletViewModel extends BaseViewModel {
   @override
   Future<void> initModel() async {
     setBusy(true);
-    await getCurrentLocation();
+    await fetchCurrentLocation();
     super.initModel();
     setBusy(false);
   }
@@ -92,17 +92,18 @@ class AddOutletViewModel extends BaseViewModel {
       phone.isNotEmpty;
 
   /// Fungsi untuk mendapatkan lokasi saat ini
-  Future<void> getCurrentLocation() async {
+  Future<void> fetchCurrentLocation() async {
     isCurrentLocation = true;
     notifyListeners();
     try {
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
       latitude = position.latitude;
       longitude = position.longitude;
       latLongController.text = '$latitude, $longitude';
-
       notifyListeners();
     } catch (e) {
       setError('Gagal mendapatkan lokasi: $e');
@@ -114,7 +115,7 @@ class AddOutletViewModel extends BaseViewModel {
 
   Future<void> addOutlet() async {
     if (latitude == null || longitude == null) {
-      await getCurrentLocation();
+      await fetchCurrentLocation();
     }
     setBusy(true);
     try {

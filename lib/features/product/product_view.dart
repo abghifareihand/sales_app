@@ -102,7 +102,6 @@ Widget _buildBody(BuildContext context, ProductViewModel model) {
     );
   }
 
-
   return RefreshIndicator(
     onRefresh: () async {
       await model.fetchProducts();
@@ -179,7 +178,10 @@ Widget _buildBody(BuildContext context, ProductViewModel model) {
                 height: 36,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: AppColors.primary,
+                  color:
+                      product.quantity != null && product.quantity! > 0
+                          ? AppColors.primary
+                          : Colors.grey,
                 ),
                 child: IconButton(
                   icon: const Icon(
@@ -187,9 +189,12 @@ Widget _buildBody(BuildContext context, ProductViewModel model) {
                     color: Colors.white,
                     size: 20,
                   ),
-                  onPressed: () {
-                    cart.addProduct(product);
-                  },
+                  onPressed:
+                      product.quantity != null && product.quantity! > 0
+                          ? () {
+                            cart.addProduct(product);
+                          }
+                          : null,
                 ),
               ),
             ),

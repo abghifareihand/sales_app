@@ -7,6 +7,7 @@ import 'package:sales_app/core/models/outlet_model.dart';
 import 'package:sales_app/core/models/transaction_model.dart';
 import 'package:sales_app/features/base_view_model.dart';
 import 'package:sales_app/features/cart/cart_view_model.dart';
+import 'package:geolocator/geolocator.dart';
 
 class CheckoutViewModel extends BaseViewModel {
   CheckoutViewModel({
@@ -21,12 +22,21 @@ class CheckoutViewModel extends BaseViewModel {
 
   List<Outlet> outlets = [];
 
+  // Minimal radius untuk checkout (meter)
+  final double minDistanceMeters = 500;
+
   Outlet? selectedOutlet;
+  double? userLatitude;
+  double? userLongitude;
+  String? distanceError;
+
+  bool get isCheckoutEnabled => selectedOutlet != null && distanceError == null;
 
   @override
   Future<void> initModel() async {
     setBusy(true);
     await fetchOutlets();
+    await fetchCurrentLocation();
     super.initModel();
     setBusy(false);
   }
@@ -38,7 +48,24 @@ class CheckoutViewModel extends BaseViewModel {
 
   void selectOutlet(Outlet outlet) {
     selectedOutlet = outlet;
-    notifyListeners();
+    validateDistance();
+  }
+
+  Future<void> fetchCurrentLocation() async {
+    setBusy(true);
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+      userLatitude = position.latitude;
+      userLongitude = position.longitude;
+      notifyListeners();
+    } catch (e) {
+      setError('Gagal mendapatkan lokasi: $e');
+    }
+    setBusy(false);
   }
 
   Future<void> fetchOutlets() async {
@@ -55,6 +82,30 @@ class CheckoutViewModel extends BaseViewModel {
     setBusy(false);
   }
 
+  void validateDistance() {
+    if (selectedOutlet != null &&
+        userLatitude != null &&
+        userLongitude != null) {
+      // convert string ke double
+      final outletLat = double.tryParse(selectedOutlet!.latitude ?? '0') ?? 0;
+      final outletLng = double.tryParse(selectedOutlet!.longitude ?? '0') ?? 0;
+
+      final double distance = Geolocator.distanceBetween(
+        userLatitude!,
+        userLongitude!,
+        outletLat,
+        outletLng,
+      );
+
+      if (distance > minDistanceMeters) {
+        distanceError = 'Lokasi kamu terlalu jauh dengan outlet';
+      } else {
+        distanceError = null;
+      }
+      notifyListeners();
+    }
+  }
+
   Future<void> addTransaction(CartViewModel cartViewModel) async {
     setBusy(true);
     try {
@@ -62,8 +113,8 @@ class CheckoutViewModel extends BaseViewModel {
           .addTransaction(
             request: AddTransactionRequest(
               outletId: selectedOutlet!.id!,
-              latitude: '-6.32028',
-              longitude: '106.8032367',
+              latitude: userLatitude.toString(),
+              longitude: userLongitude.toString(),
               items:
                   cartItems
                       .map(
@@ -78,7 +129,6 @@ class CheckoutViewModel extends BaseViewModel {
       if (response.response.statusCode == 200) {
         final addTransactionResponse = response.data;
         setSuccess(addTransactionResponse.message);
-    
       }
       setBusy(false);
     } on DioException catch (e) {
