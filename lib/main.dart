@@ -30,16 +30,14 @@ class MyApp extends StatelessWidget {
             secondary: AppColors.primary,
           ),
           scaffoldBackgroundColor: AppColors.white,
+          bottomSheetTheme: BottomSheetThemeData(backgroundColor: AppColors.white),
           dialogTheme: const DialogTheme(elevation: 0),
           useMaterial3: true,
           appBarTheme: AppBarTheme(
             elevation: 0,
             backgroundColor: AppColors.white,
             foregroundColor: AppColors.primary,
-            titleTextStyle: AppFonts.medium.copyWith(
-              color: AppColors.primary,
-              fontSize: 16,
-            ),
+            titleTextStyle: AppFonts.medium.copyWith(color: AppColors.primary, fontSize: 16),
             centerTitle: true,
           ),
           snackBarTheme: SnackBarThemeData(

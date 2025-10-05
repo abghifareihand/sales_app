@@ -41,6 +41,9 @@ class $AssetsSvgGen {
   /// File path: assets/svg/icon_back.svg
   SvgGenImage get iconBack => const SvgGenImage('assets/svg/icon_back.svg');
 
+  /// File path: assets/svg/icon_edit.svg
+  SvgGenImage get iconEdit => const SvgGenImage('assets/svg/icon_edit.svg');
+
   /// File path: assets/svg/icon_error.svg
   SvgGenImage get iconError => const SvgGenImage('assets/svg/icon_error.svg');
 
@@ -76,6 +79,7 @@ class $AssetsSvgGen {
   List<SvgGenImage> get values => [
     iconAdd,
     iconBack,
+    iconEdit,
     iconError,
     iconMin,
     iconOutlet,

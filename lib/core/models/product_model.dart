@@ -23,6 +23,7 @@ class ProductResponse {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class Product {
   const Product({
+    this.stockId,
     this.id,
     this.name,
     this.description,
@@ -34,6 +35,7 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) =>
       _$ProductFromJson(json);
 
+  final int? stockId;
   final int? id;
   final String? name;
   final String? description;

@@ -86,22 +86,15 @@ Widget _buildBody(BuildContext context, OutletViewModel model) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Center(
-                  child: Assets.images.imageStore.image(width: 80, height: 80),
-                ),
-              ),
+              Expanded(child: Center(child: Assets.images.imageStore.image(width: 80, height: 80))),
               const SizedBox(height: 8),
               Text(
-                outlet.name ?? '-',
-                style: AppFonts.medium.copyWith(
-                  color: AppColors.black,
-                  fontSize: 14,
-                ),
+                outlet.nameOutlet ?? '-',
+                style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                outlet.nameOutlet ?? '-',
+                outlet.idOutlet ?? '-',
                 style: AppFonts.medium.copyWith(
                   color: AppColors.black.withValues(alpha: 0.5),
                   fontSize: 12,

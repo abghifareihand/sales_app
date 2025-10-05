@@ -24,6 +24,7 @@ Map<String, dynamic> _$ProductResponseToJson(ProductResponse instance) =>
     };
 
 Product _$ProductFromJson(Map<String, dynamic> json) => Product(
+  stockId: (json['stock_id'] as num?)?.toInt(),
   id: (json['id'] as num?)?.toInt(),
   name: json['name'] as String?,
   description: json['description'] as String?,
@@ -33,6 +34,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
 );
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
+  'stock_id': instance.stockId,
   'id': instance.id,
   'name': instance.name,
   'description': instance.description,

@@ -6,6 +6,7 @@ import 'package:sales_app/core/utils/formatter.dart';
 import 'package:sales_app/features/base_view.dart';
 import 'package:sales_app/features/cart/cart_view.dart';
 import 'package:sales_app/features/cart/cart_view_model.dart';
+import 'package:sales_app/features/product/product-detail/product_detail_view.dart';
 import 'package:sales_app/features/product/product_view_model.dart';
 import 'package:sales_app/features/product/widgets/product_shimmer.dart';
 import 'package:sales_app/ui/shared/custom_appbar.dart';
@@ -31,10 +32,7 @@ class ProductView extends StatelessWidget {
                   final cartCount = cart.totalItems;
                   return InkWell(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const CartView()),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const CartView()));
                     },
                     borderRadius: BorderRadius.circular(50),
                     child: Stack(
@@ -42,10 +40,7 @@ class ProductView extends StatelessWidget {
                       children: [
                         const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Icon(
-                            Icons.shopping_bag_outlined,
-                            color: AppColors.primary,
-                          ),
+                          child: Icon(Icons.shopping_bag_outlined, color: AppColors.primary),
                         ),
                         if (cartCount > 0)
                           Positioned(
@@ -57,10 +52,7 @@ class ProductView extends StatelessWidget {
                                 color: Colors.red,
                                 shape: BoxShape.circle,
                               ),
-                              constraints: const BoxConstraints(
-                                minWidth: 16,
-                                minHeight: 16,
-                              ),
+                              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                               child: Center(
                                 child: Text(
                                   '$cartCount',
@@ -89,7 +81,7 @@ class ProductView extends StatelessWidget {
 }
 
 Widget _buildBody(BuildContext context, ProductViewModel model) {
-  if (model.isBusy && model.products.isEmpty) {
+  if (model.isBusy) {
     return ProductShimmer();
   }
 
@@ -123,51 +115,57 @@ Widget _buildBody(BuildContext context, ProductViewModel model) {
           clipBehavior: Clip.none,
           children: [
             // Card content
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.gray),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Assets.images.imageProduct.image(
-                        width: 80,
-                        height: 80,
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () async {
+
+                final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProductDetailView(product: product)),
+                  );
+                  if (result == true) {
+                    await model.fetchProducts();
+                  }
+               
+              },
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.gray),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Center(child: Assets.images.imageProduct.image(width: 80, height: 80)),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      product.name ?? '-',
+                      style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      Formatter.toRupiahDouble(product.sellingPrice ?? 0),
+                      style: AppFonts.medium.copyWith(
+                        color: AppColors.black.withValues(alpha: 0.5),
+                        fontSize: 12,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    product.name ?? '-',
-                    style: AppFonts.medium.copyWith(
-                      color: AppColors.black,
-                      fontSize: 14,
+                    const SizedBox(height: 4),
+                    Text(
+                      'Stok: ${product.quantity ?? 0}',
+                      style: AppFonts.regular.copyWith(
+                        color: AppColors.black.withValues(alpha: 0.5),
+                        fontSize: 10,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    Formatter.toRupiahDouble(product.sellingPrice ?? 0),
-                    style: AppFonts.medium.copyWith(
-                      color: AppColors.black.withValues(alpha: 0.5),
-                      fontSize: 12,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Stok: ${product.quantity ?? 0}',
-                    style: AppFonts.regular.copyWith(
-                      color: AppColors.black.withValues(alpha: 0.5),
-                      fontSize: 10,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Positioned(
@@ -184,11 +182,7 @@ Widget _buildBody(BuildContext context, ProductViewModel model) {
                           : Colors.grey,
                 ),
                 child: IconButton(
-                  icon: const Icon(
-                    Icons.shopping_cart_outlined,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
                   onPressed:
                       product.quantity != null && product.quantity! > 0
                           ? () {

@@ -4,7 +4,7 @@ import 'package:sales_app/core/api/outlet_api.dart';
 import 'package:sales_app/core/api/transaction_api.dart';
 import 'package:sales_app/core/models/api_model.dart';
 import 'package:sales_app/core/models/outlet_model.dart';
-import 'package:sales_app/core/models/transaction_model.dart';
+import 'package:sales_app/core/models/add_transaction_model.dart';
 import 'package:sales_app/features/base_view_model.dart';
 import 'package:sales_app/features/cart/cart_view_model.dart';
 import 'package:geolocator/geolocator.dart';
@@ -22,15 +22,15 @@ class CheckoutViewModel extends BaseViewModel {
 
   List<Outlet> outlets = [];
 
-  // Minimal radius untuk checkout (meter)
-  final double minDistanceMeters = 500;
-
   Outlet? selectedOutlet;
   double? userLatitude;
   double? userLongitude;
-  String? distanceError;
+  // Minimal radius untuk checkout (meter)
+  // final double minDistanceMeters = 500;
+  
+  // String? distanceError;
 
-  bool get isCheckoutEnabled => selectedOutlet != null && distanceError == null;
+  // bool get isCheckoutEnabled => selectedOutlet != null && distanceError == null;
 
   @override
   Future<void> initModel() async {
@@ -48,7 +48,8 @@ class CheckoutViewModel extends BaseViewModel {
 
   void selectOutlet(Outlet outlet) {
     selectedOutlet = outlet;
-    validateDistance();
+    notifyListeners();
+    // validateDistance();
   }
 
   Future<void> fetchCurrentLocation() async {
@@ -82,29 +83,29 @@ class CheckoutViewModel extends BaseViewModel {
     setBusy(false);
   }
 
-  void validateDistance() {
-    if (selectedOutlet != null &&
-        userLatitude != null &&
-        userLongitude != null) {
-      // convert string ke double
-      final outletLat = double.tryParse(selectedOutlet!.latitude ?? '0') ?? 0;
-      final outletLng = double.tryParse(selectedOutlet!.longitude ?? '0') ?? 0;
+  // void validateDistance() {
+  //   if (selectedOutlet != null &&
+  //       userLatitude != null &&
+  //       userLongitude != null) {
+  //     // convert string ke double
+  //     final outletLat = double.tryParse(selectedOutlet!.latitude ?? '0') ?? 0;
+  //     final outletLng = double.tryParse(selectedOutlet!.longitude ?? '0') ?? 0;
 
-      final double distance = Geolocator.distanceBetween(
-        userLatitude!,
-        userLongitude!,
-        outletLat,
-        outletLng,
-      );
+  //     final double distance = Geolocator.distanceBetween(
+  //       userLatitude!,
+  //       userLongitude!,
+  //       outletLat,
+  //       outletLng,
+  //     );
 
-      if (distance > minDistanceMeters) {
-        distanceError = 'Lokasi kamu terlalu jauh dengan outlet';
-      } else {
-        distanceError = null;
-      }
-      notifyListeners();
-    }
-  }
+  //     if (distance > minDistanceMeters) {
+  //       distanceError = 'Lokasi kamu terlalu jauh dengan outlet';
+  //     } else {
+  //       distanceError = null;
+  //     }
+  //     notifyListeners();
+  //   }
+  // }
 
   Future<void> addTransaction(CartViewModel cartViewModel) async {
     setBusy(true);

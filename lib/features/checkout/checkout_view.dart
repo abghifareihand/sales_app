@@ -60,8 +60,8 @@ Widget _buildBody(
       CustomDropdown<int>(
         label: 'Pilih Outlet',
         hintText: 'Pilih Outlet',
-        value: model.selectedOutlet?.id, // int
-        items: model.outlets.map((e) => e.id!).toList(), // list int
+        value: model.selectedOutlet?.id,
+        items: model.outlets.map((e) => e.id!).toList(),
         itemLabels: model.outlets.map((e) => e.nameOutlet ?? '-').toList(),
         onChanged: (int? newValue) {
           if (newValue != null) {
@@ -70,20 +70,21 @@ Widget _buildBody(
           }
         },
       ),
-      if (model.selectedOutlet == null) const SizedBox(height: 16.0),
-      if (model.selectedOutlet != null) ...[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Text(
-            model.distanceError ?? 'Lokasi kamu dekat dengan outlet',
-            style: TextStyle(
-              color: model.distanceError != null ? Colors.red : Colors.green,
-              fontSize: 12,
-            ),
-          ),
-        ),
-      ],
+      const SizedBox(height: 16.0),
 
+      // if (model.selectedOutlet == null) const SizedBox(height: 16.0),
+      // if (model.selectedOutlet != null) ...[
+      //   Padding(
+      //     padding: const EdgeInsets.symmetric(vertical: 8),
+      //     child: Text(
+      //       model.distanceError ?? 'Lokasi kamu dekat dengan outlet',
+      //       style: TextStyle(
+      //         color: model.distanceError != null ? Colors.red : Colors.green,
+      //         fontSize: 12,
+      //       ),
+      //     ),
+      //   ),
+      // ],
       Text(
         'Total Product',
         style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
@@ -192,7 +193,7 @@ Widget _buildBottom(
           Expanded(
             child: Button.filled(
               onPressed:
-                  model.isCheckoutEnabled
+                  model.selectedOutlet != null
                       ? () async {
                         final cartViewModel = Provider.of<CartViewModel>(
                           context,

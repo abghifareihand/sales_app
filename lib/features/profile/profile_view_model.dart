@@ -1,28 +1,24 @@
 import 'package:sales_app/core/api/auth_api.dart';
-import 'package:sales_app/core/api/transaction_api.dart';
 import 'package:sales_app/core/models/api_model.dart';
 import 'package:sales_app/core/models/profile_model.dart';
-import 'package:sales_app/core/models/transaction_summary_model.dart';
+import 'package:sales_app/core/services/pref_service.dart';
 import 'package:sales_app/features/base_view_model.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
-class HomeViewModel extends BaseViewModel {
-  HomeViewModel({required this.authApi, required this.transactionApi});
+class ProfileViewModel extends BaseViewModel {
+  ProfileViewModel({required this.authApi});
   final AuthApi authApi;
-  final TransactionApi transactionApi;
+  final PrefService _prefService = PrefService();
 
   String name = '';
-  String branchName = '';
-  String branchAddress = '';
-
-  TransactionSummary? transactionsSummary;
+  String role = '';
+  User? user;
 
   @override
   Future<void> initModel() async {
     setBusy(true);
     await fetchProfile();
-    await fetchTransactionSummary();
     super.initModel();
     setBusy(false);
   }
@@ -33,13 +29,12 @@ class HomeViewModel extends BaseViewModel {
   }
 
   Future<void> fetchProfile() async {
+    setBusy(true);
     try {
       final HttpResponse<ProfileResponse> response = await authApi.profile();
       if (response.response.statusCode == 200) {
         final profileResponse = response.data.user;
-        name = profileResponse?.name ?? '';
-        branchName = profileResponse?.branchName ?? '';
-        branchAddress = profileResponse?.branchAddress ?? '';
+        user = profileResponse;
       }
     } on DioException catch (e) {
       final apiResponse = ApiResponse.fromJson(e.response!.data);
@@ -48,17 +43,19 @@ class HomeViewModel extends BaseViewModel {
     setBusy(false);
   }
 
-   Future<void> fetchTransactionSummary() async {
+  Future<void> logout() async {
     setBusy(true);
     try {
-      final HttpResponse<TransactionSummaryResponse> response = await transactionApi.transactionSummary();
+      final HttpResponse<ApiResponse> response = await authApi.logout();
       if (response.response.statusCode == 200) {
-        transactionsSummary = response.data.summary;
+        final loginResponse = response.data;
+        await _prefService.removeAll();
+        setSuccess(loginResponse.message);
       }
     } on DioException catch (e) {
       final apiResponse = ApiResponse.fromJson(e.response!.data);
       setError(apiResponse.message);
+      setBusy(false);
     }
-    setBusy(false);
   }
 }
