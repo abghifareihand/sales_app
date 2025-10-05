@@ -2,11 +2,10 @@ import 'package:provider/provider.dart';
 import 'package:sales_app/core/api/auth_api.dart';
 import 'package:sales_app/core/api/transaction_api.dart';
 import 'package:sales_app/core/assets/assets.gen.dart';
-import 'package:sales_app/core/models/transaction_summary_model.dart';
-import 'package:sales_app/core/utils/formatter.dart';
 import 'package:sales_app/features/base_view.dart';
 import 'package:sales_app/features/home/home_view_model.dart';
 import 'package:sales_app/features/home/widgets/shimmer_name.dart';
+import 'package:sales_app/features/home/widgets/summary_chart.dart';
 import 'package:sales_app/features/outlet/outlet_view.dart';
 import 'package:sales_app/features/product/product_view.dart';
 import 'package:sales_app/features/profile/profile_view.dart';
@@ -15,7 +14,6 @@ import 'package:sales_app/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sales_app/ui/theme/app_fonts.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -40,6 +38,7 @@ Widget _buildBody(BuildContext context, HomeViewModel model) {
   return RefreshIndicator(
     onRefresh: () async {
       await model.fetchProfile();
+      await model.fetchTransactionSummary();
     },
     child: ListView(
       children: [
@@ -121,95 +120,48 @@ Widget _buildBody(BuildContext context, HomeViewModel model) {
             ),
           ],
         ),
-        // Chart Ringkasan Penjualan
-        // Container(
-        //   padding: const EdgeInsets.symmetric(horizontal: 20),
-        //   height: 300,
-        //   child:
-        //       model.transactionsSummary == null
-        //           ? const Center(child: CircularProgressIndicator())
-        //           : SfCartesianChart(
-        //             title: ChartTitle(text: 'Ringkasan Penjualan'),
-        //             primaryXAxis: CategoryAxis(labelStyle: const TextStyle(fontSize: 12)),
-        //             primaryYAxis: NumericAxis(
-        //               title: AxisTitle(text: 'Total Penjualan'),
-        //               edgeLabelPlacement: EdgeLabelPlacement.shift,
-        //               interval: 1000,
-        //             ),
-        //             tooltipBehavior: TooltipBehavior(enable: true),
-        //             series: [
-        //               // Hari Ini
-        //               ColumnSeries<TransactionSummary, String>(
-        //                 dataSource: [model.transactionsSummary!],
-        //                 xValueMapper: (TransactionSummary data, _) => 'Hari Ini',
-        //                 yValueMapper: (TransactionSummary data, _) => data.daily.total.toDouble(),
-        //                 width: 0.2,
-        //                 spacing: 0.4,
-        //                 pointColorMapper: (_, __) => Colors.blue,
-        //                 dataLabelSettings: DataLabelSettings(
-        //                   isVisible: true,
-        //                   labelAlignment: ChartDataLabelAlignment.top,
-        //                   builder: (dynamic data, _, __, ___, ____) {
-        //                     return Text(
-        //                       Formatter.toRupiahDouble(data.daily.total),
-        //                       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        //                     );
-        //                   },
-        //                 ),
-        //               ),
 
-        //               // Minggu Ini
-        //               ColumnSeries<TransactionSummary, String>(
-        //                 dataSource: [model.transactionsSummary!],
-        //                 xValueMapper: (TransactionSummary data, _) => 'Minggu Ini',
-        //                 yValueMapper: (TransactionSummary data, _) => data.weekly.total.toDouble(),
-        //                 width: 0.2,
-        //                 spacing: 0.4,
-        //                 pointColorMapper: (_, __) => Colors.green,
-        //                 dataLabelSettings: DataLabelSettings(
-        //                   isVisible: true,
-        //                   labelAlignment: ChartDataLabelAlignment.top,
-        //                   builder: (dynamic data, _, __, ___, ____) {
-        //                     return Text(
-        //                       Formatter.toRupiahDouble(data.weekly.total),
-        //                       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        //                     );
-        //                   },
-        //                 ),
-        //               ),
-
-        //               // Bulan Ini
-        //               ColumnSeries<TransactionSummary, String>(
-        //                 dataSource: [model.transactionsSummary!],
-        //                 xValueMapper: (TransactionSummary data, _) => 'Bulan Ini',
-        //                 yValueMapper: (TransactionSummary data, _) => data.monthly.total.toDouble(),
-        //                 width: 0.2,
-        //                 spacing: 0.4,
-        //                 pointColorMapper: (_, __) => Colors.orange,
-        //                 dataLabelSettings: DataLabelSettings(
-        //                   isVisible: true,
-        //                   labelAlignment: ChartDataLabelAlignment.top,
-        //                   builder: (dynamic data, _, __, ___, ____) {
-        //                     return Text(
-        //                       Formatter.toRupiahDouble(data.monthly.total),
-        //                       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        //                     );
-        //                   },
-        //                 ),
-        //               ),
-        //             ],
-        //           ),
-        // ),
+        // ===== Chart Summary =====
+        if (model.transactionsSummary != null &&
+            (model.transactionsSummary!.daily.total > 0 ||
+                model.transactionsSummary!.weekly.total > 0 ||
+                model.transactionsSummary!.monthly.total > 0)) ...[
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                Text(
+                  'Ringkasan Penjualan',
+                  style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
+                ),
+                const SizedBox(height: 8.0),
+                SummaryChart(
+                  data: [
+                    ChartData(
+                      'Harian',
+                      model.transactionsSummary!.daily.total,
+                      model.transactionsSummary!.daily.profit,
+                    ),
+                    ChartData(
+                      'Mingguan',
+                      model.transactionsSummary!.weekly.total,
+                      model.transactionsSummary!.weekly.profit,
+                    ),
+                    ChartData(
+                      'Bulanan',
+                      model.transactionsSummary!.monthly.total,
+                      model.transactionsSummary!.monthly.profit,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16.0),
+        ],
       ],
     ),
   );
-}
-
-class SalesData {
-  final String period;
-  final double amount;
-
-  SalesData(this.period, this.amount);
 }
 
 Widget menuButton({

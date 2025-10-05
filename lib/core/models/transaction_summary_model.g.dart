@@ -38,8 +38,8 @@ Map<String, dynamic> _$TransactionSummaryToJson(TransactionSummary instance) =>
 
 SummaryDetail _$SummaryDetailFromJson(Map<String, dynamic> json) =>
     SummaryDetail(
-      total: SummaryDetail._stringToDouble(json['total'] as String?),
-      profit: SummaryDetail._stringToDouble(json['profit'] as String?),
+      total: (json['total'] as num).toDouble(),
+      profit: (json['profit'] as num).toDouble(),
     );
 
 Map<String, dynamic> _$SummaryDetailToJson(SummaryDetail instance) =>

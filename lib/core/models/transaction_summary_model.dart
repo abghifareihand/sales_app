@@ -48,14 +48,8 @@ class SummaryDetail {
   factory SummaryDetail.fromJson(Map<String, dynamic> json) =>
       _$SummaryDetailFromJson(json);
 
-  @JsonKey(fromJson: _stringToDouble)
   final double total;
-
-  @JsonKey(fromJson: _stringToDouble)
   final double profit;
 
   Map<String, dynamic> toJson() => _$SummaryDetailToJson(this);
-
-  static double _stringToDouble(String? value) =>
-      double.tryParse(value ?? '0') ?? 0;
 }
