@@ -158,7 +158,10 @@ Widget _buildBody(BuildContext context, TransactionViewModel model) {
                         ),
                         Text(
                           Formatter.toRupiahDouble(transaction.profit),
-                          style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 12),
+                          style: AppFonts.semiBold.copyWith(
+                            color: transaction.profit < 0 ? Colors.red : AppColors.black,
+                            fontSize: 12,
+                          ),
                         ),
                       ] else ...[
                         Text(
