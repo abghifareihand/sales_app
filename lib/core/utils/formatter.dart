@@ -11,10 +11,25 @@ class Formatter {
     return formatCurrency.format(number);
   }
 
+  static String toNoRupiahDouble(double number) {
+    final formatCurrency = NumberFormat.currency(locale: 'id_ID', symbol: '', decimalDigits: 0);
+    return formatCurrency.format(number);
+  }
+
   static String toDateTime(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString);
-      final formatter = DateFormat('dd MMM yyyy, HH:mm', 'id_ID');
+      final formatter = DateFormat('dd MMM yyyy HH:mm', 'id_ID');
+      return formatter.format(dateTime);
+    } catch (e) {
+      return dateTimeString;
+    }
+  }
+
+  static String toDateTimeFull(String dateTimeString) {
+    try {
+      final dateTime = DateTime.parse(dateTimeString);
+      final formatter = DateFormat('dd/MM/yyyy HH:mm');
       return formatter.format(dateTime);
     } catch (e) {
       return dateTimeString;

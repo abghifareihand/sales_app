@@ -5,7 +5,9 @@ import 'package:sales_app/features/auth/login/login_view.dart';
 import 'package:sales_app/features/base_view.dart';
 import 'package:sales_app/features/profile/edit-password/edit_password_view.dart';
 import 'package:sales_app/features/profile/edit-profile/edit_profile_view.dart';
+import 'package:sales_app/features/profile/history/history_view.dart';
 import 'package:sales_app/features/profile/profile_view_model.dart';
+import 'package:sales_app/features/profile/setting-printer/setting_printer_view.dart';
 import 'package:sales_app/ui/shared/custom_appbar.dart';
 import 'package:sales_app/ui/shared/custom_button.dart';
 import 'package:sales_app/ui/shared/custom_snackbar.dart';
@@ -66,7 +68,7 @@ Widget _buildBody(BuildContext context, ProfileViewModel model) {
                 fontSize: 12,
               ),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 8.0),
             profileMenu(
               icon: Icons.person,
               title: 'Informasi Akun',
@@ -88,6 +90,33 @@ Widget _buildBody(BuildContext context, ProfileViewModel model) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => EditPasswordView()),
+                );
+              },
+            ),
+            const SizedBox(height: 16.0),
+            profileMenu(
+              icon: Icons.receipt_long,
+              title: 'History Produk',
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryView()));
+              },
+            ),
+            const SizedBox(height: 16.0),
+            Text(
+              'Printer',
+              style: AppFonts.regular.copyWith(
+                color: AppColors.black.withValues(alpha: 0.5),
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            profileMenu(
+              icon: Icons.print,
+              title: 'Setting Printer',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingPrinterView()),
                 );
               },
             ),

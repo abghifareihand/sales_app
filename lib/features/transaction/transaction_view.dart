@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:sales_app/core/api/transaction_api.dart';
 import 'package:sales_app/core/utils/formatter.dart';
 import 'package:sales_app/features/base_view.dart';
+import 'package:sales_app/features/transaction/transaction-detail/transaction_detail_view.dart';
 import 'package:sales_app/features/transaction/transaction_view_model.dart';
 import 'package:sales_app/features/transaction/widgets/transaction_shimmer.dart';
 import 'package:sales_app/ui/shared/custom_appbar.dart';
@@ -52,160 +53,174 @@ Widget _buildBody(BuildContext context, TransactionViewModel model) {
       separatorBuilder: (context, index) => const SizedBox(height: 16.0),
       itemBuilder: (context, index) {
         final transaction = model.transactions[index];
-        return Container(
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.gray),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        return InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TransactionDetailView(transaction: transaction),
+              ),
+            );
+          },
+          child: Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.gray),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            transaction.outlet.nameOutlet,
+                            style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 14),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            transaction.outlet.name,
+                            style: AppFonts.medium.copyWith(
+                              color: AppColors.black.withValues(alpha: 0.5),
+                              fontSize: 12,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          transaction.outlet.nameOutlet,
-                          style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 14),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          transaction.outlet.name,
+                          Formatter.toDate(transaction.createdAt),
                           style: AppFonts.medium.copyWith(
                             color: AppColors.black.withValues(alpha: 0.5),
                             fontSize: 12,
                           ),
-                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          Formatter.toTime(transaction.createdAt),
+                          style: AppFonts.medium.copyWith(
+                            color: AppColors.black.withValues(alpha: 0.5),
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        Formatter.toDate(transaction.createdAt),
-                        style: AppFonts.medium.copyWith(
-                          color: AppColors.black.withValues(alpha: 0.5),
-                          fontSize: 12,
-                        ),
-                      ),
-                      Text(
-                        Formatter.toTime(transaction.createdAt),
-                        style: AppFonts.medium.copyWith(
-                          color: AppColors.black.withValues(alpha: 0.5),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Divider(color: AppColors.gray),
+                  ],
+                ),
+                Divider(color: AppColors.gray),
 
-              // ISI PRODUK
-              Column(
-                children:
-                    transaction.items.map((item) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '${item.name} x${item.quantity}',
+                // ISI PRODUK
+                Column(
+                  children:
+                      transaction.items.map((item) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${item.name} x${item.quantity}',
+                                style: AppFonts.medium.copyWith(
+                                  color: AppColors.black,
+                                  fontSize: 12,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              Formatter.toRupiahDouble(item.subtotal.toDouble()),
                               style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
-                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                ),
+
+                Divider(color: AppColors.gray),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // PROFIT
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Profit',
+                          style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (transaction.status == 'approved' &&
+                            transaction.originalProfit != null) ...[
+                          Text(
+                            Formatter.toRupiahDouble(transaction.originalProfit ?? 0),
+                            style: AppFonts.medium.copyWith(
+                              color: AppColors.black.withValues(alpha: 0.5),
+                              fontSize: 12,
+                              decoration: TextDecoration.lineThrough,
                             ),
                           ),
                           Text(
-                            Formatter.toRupiahDouble(item.subtotal.toDouble()),
-                            style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
+                            Formatter.toRupiahDouble(transaction.profit),
+                            style: AppFonts.semiBold.copyWith(
+                              color: transaction.profit < 0 ? Colors.red : AppColors.black,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ] else ...[
+                          Text(
+                            Formatter.toRupiahDouble(transaction.profit),
+                            style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 12),
                           ),
                         ],
-                      );
-                    }).toList(),
-              ),
-
-              Divider(color: AppColors.gray),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // PROFIT
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Profit',
-                        style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (transaction.status == 'approved' &&
-                          transaction.originalProfit != null) ...[
-                        Text(
-                          Formatter.toRupiahDouble(transaction.originalProfit ?? 0),
-                          style: AppFonts.medium.copyWith(
-                            color: AppColors.black.withValues(alpha: 0.5),
-                            fontSize: 12,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                        Text(
-                          Formatter.toRupiahDouble(transaction.profit),
-                          style: AppFonts.semiBold.copyWith(
-                            color: transaction.profit < 0 ? Colors.red : AppColors.black,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ] else ...[
-                        Text(
-                          Formatter.toRupiahDouble(transaction.profit),
-                          style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 12),
-                        ),
                       ],
-                    ],
-                  ),
+                    ),
 
-                  // PENJUALAN / TOTAL
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Penjualan',
-                        style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (transaction.status == 'approved' &&
-                          transaction.originalTotal != null) ...[
+                    // PENJUALAN / TOTAL
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
                         Text(
-                          Formatter.toRupiahDouble(transaction.originalTotal ?? 0),
-                          style: AppFonts.medium.copyWith(
-                            color: AppColors.black.withValues(alpha: 0.5),
-                            fontSize: 12,
-                            decoration: TextDecoration.lineThrough,
+                          'Penjualan',
+                          style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (transaction.status == 'approved' &&
+                            transaction.originalTotal != null) ...[
+                          Text(
+                            Formatter.toRupiahDouble(transaction.originalTotal ?? 0),
+                            style: AppFonts.medium.copyWith(
+                              color: AppColors.black.withValues(alpha: 0.5),
+                              fontSize: 12,
+                              decoration: TextDecoration.lineThrough,
+                            ),
                           ),
-                        ),
-                        Text(
-                          Formatter.toRupiahDouble(transaction.total),
-                          style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 12),
-                        ),
-                      ] else ...[
-                        Text(
-                          Formatter.toRupiahDouble(transaction.total),
-                          style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 12),
-                        ),
+                          Text(
+                            Formatter.toRupiahDouble(transaction.total),
+                            style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 12),
+                          ),
+                        ] else ...[
+                          Text(
+                            Formatter.toRupiahDouble(transaction.total),
+                            style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 12),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },

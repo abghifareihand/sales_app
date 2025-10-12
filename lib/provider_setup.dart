@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:sales_app/core/api/auth_api.dart';
+import 'package:sales_app/core/api/history_api.dart';
 import 'package:sales_app/core/api/outlet_api.dart';
 import 'package:sales_app/core/api/product_api.dart';
 import 'package:sales_app/core/api/transaction_api.dart';
@@ -28,6 +29,9 @@ List<SingleChildWidget> apiServices = <SingleChildWidget>[
   ),
   ProxyProvider<DioService, TransactionApi>(
     update: (_, dioService, __) => TransactionApi(dioService.dio),
+  ),
+  ProxyProvider<DioService, HistoryApi>(
+    update: (_, dioService, __) => HistoryApi(dioService.dio),
   ),
 ];
 

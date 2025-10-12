@@ -25,6 +25,7 @@ class Transaction {
   const Transaction({
     required this.id,
     required this.status,
+    required this.sales,
     required this.outlet,
     this.originalTotal,
     this.originalProfit,
@@ -39,6 +40,7 @@ class Transaction {
 
   final int id;
   final String status;
+  final String sales;
   final Outlet outlet;
 
   @JsonKey(fromJson: _stringToDouble)

@@ -49,6 +49,9 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   shimmer: ^3.0.0
   syncfusion_flutter_charts: ^31.1.19
+  esc_pos_utils_plus: ^2.0.3
+  print_bluetooth_thermal: ^1.1.5
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

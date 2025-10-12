@@ -27,6 +27,7 @@ Map<String, dynamic> _$TransactionResponseToJson(
 Transaction _$TransactionFromJson(Map<String, dynamic> json) => Transaction(
   id: (json['id'] as num).toInt(),
   status: json['status'] as String,
+  sales: json['sales'] as String,
   outlet: Outlet.fromJson(json['outlet'] as Map<String, dynamic>),
   originalTotal: Transaction._stringToDouble(json['original_total'] as String?),
   originalProfit: Transaction._stringToDouble(
@@ -45,6 +46,7 @@ Map<String, dynamic> _$TransactionToJson(Transaction instance) =>
     <String, dynamic>{
       'id': instance.id,
       'status': instance.status,
+      'sales': instance.sales,
       'outlet': instance.outlet,
       'original_total': instance.originalTotal,
       'original_profit': instance.originalProfit,
