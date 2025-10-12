@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sales_app/core/assets/assets.gen.dart';
 import 'package:sales_app/core/models/transaction_model.dart';
 import 'package:sales_app/core/services/print_service.dart';
 import 'package:sales_app/core/utils/formatter.dart';

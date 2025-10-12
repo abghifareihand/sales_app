@@ -24,10 +24,6 @@ class $AssetsImagesGen {
   AssetGenImage get imageProduct =>
       const AssetGenImage('assets/images/image_product.png');
 
-  /// File path: assets/images/image_receipt.png
-  AssetGenImage get imageReceipt =>
-      const AssetGenImage('assets/images/image_receipt.png');
-
   /// File path: assets/images/image_store.png
   AssetGenImage get imageStore =>
       const AssetGenImage('assets/images/image_store.png');
@@ -36,13 +32,7 @@ class $AssetsImagesGen {
   AssetGenImage get logo => const AssetGenImage('assets/images/logo.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [
-    icon,
-    imageProduct,
-    imageReceipt,
-    imageStore,
-    logo,
-  ];
+  List<AssetGenImage> get values => [icon, imageProduct, imageStore, logo];
 }
 
 class $AssetsSvgGen {
