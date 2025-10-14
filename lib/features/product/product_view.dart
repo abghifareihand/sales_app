@@ -118,15 +118,13 @@ Widget _buildBody(BuildContext context, ProductViewModel model) {
             InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () async {
-
                 final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProductDetailView(product: product)),
-                  );
-                  if (result == true) {
-                    await model.fetchProducts();
-                  }
-               
+                  context,
+                  MaterialPageRoute(builder: (context) => ProductDetailView(product: product)),
+                );
+                if (result == true) {
+                  await model.fetchProducts();
+                }
               },
               child: Container(
                 padding: const EdgeInsets.all(12),
@@ -139,14 +137,38 @@ Widget _buildBody(BuildContext context, ProductViewModel model) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Center(child: Assets.images.imageProduct.image(width: 80, height: 80)),
+                      child: Center(child: Assets.images.imageProduct.image(width: 60, height: 60)),
                     ),
-                    const SizedBox(height: 8),
                     Text(
                       product.name ?? '-',
                       style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
                       overflow: TextOverflow.ellipsis,
                     ),
+                    Text(
+                      product.provider ?? '-',
+                      style: AppFonts.medium.copyWith(
+                        color: AppColors.black,
+                        fontSize: 12,
+                        height: 1.0,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4.0),
+                    Text(
+                      product.category ?? '-',
+                      style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      product.kuota ?? '-',
+                      style: AppFonts.medium.copyWith(
+                        color: AppColors.black,
+                        fontSize: 10,
+                        height: 1.0,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4.0),
                     Text(
                       Formatter.toRupiahDouble(product.sellingPrice ?? 0),
                       style: AppFonts.medium.copyWith(
@@ -155,12 +177,12 @@ Widget _buildBody(BuildContext context, ProductViewModel model) {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
                     Text(
-                      'Stok: ${product.quantity ?? 0}',
+                      'Sisa stok: ${product.quantity ?? 0}',
                       style: AppFonts.regular.copyWith(
                         color: AppColors.black.withValues(alpha: 0.5),
                         fontSize: 10,
+                        height: 1.0,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
