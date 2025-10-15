@@ -26,6 +26,13 @@ class CartViewModel extends ChangeNotifier {
     }
   }
 
+  void updateQuantity(int productId, int quantity) {
+    if (_items.containsKey(productId)) {
+      _items[productId]!.quantity = quantity;
+      notifyListeners(); // biar UI rebuild & total price update
+    }
+  }
+
   void clearCart() {
     _items.clear();
     notifyListeners();

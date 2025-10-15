@@ -58,20 +58,14 @@ Widget _buildBody(BuildContext context) {
                 children: [
                   Text(
                     product.name ?? '',
-                    style: AppFonts.semiBold.copyWith(
-                      color: AppColors.black,
-                      fontSize: 16,
-                    ),
+                    style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 16),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         Formatter.toRupiahDouble(product.sellingPrice ?? 0),
-                        style: AppFonts.medium.copyWith(
-                          color: AppColors.black,
-                          fontSize: 14,
-                        ),
+                        style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
                       ),
                       Row(
                         children: [
@@ -82,15 +76,27 @@ Widget _buildBody(BuildContext context) {
                             child: Assets.svg.iconMin.svg(),
                           ),
                           SizedBox(
-                            width: 32,
-                            child: Center(
-                              child: Text(
-                                '${cartItem.quantity}',
-                                style: AppFonts.medium.copyWith(
-                                  color: AppColors.black,
-                                  fontSize: 14,
+                            width: 48,
+                            child: TextField(
+                              textAlign: TextAlign.center,
+                              keyboardType: TextInputType.number,
+                              controller: TextEditingController(text: cartItem.quantity.toString())
+                                ..selection = TextSelection.fromPosition(
+                                  TextPosition(offset: cartItem.quantity.toString().length),
                                 ),
+                              onChanged: (value) {
+                                int qty = int.tryParse(value) ?? 1;
+                                if (qty < 1) qty = 1;
+
+                                // update state langsung
+                                cart.updateQuantity(product.id!, qty);
+                              },
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(vertical: 8),
                               ),
+                              style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
                             ),
                           ),
                           InkWell(
@@ -119,7 +125,7 @@ Widget _buildBottom(BuildContext context) {
   if (cart.items.isEmpty) {
     return SizedBox.shrink();
   }
-  
+
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: const BoxDecoration(
@@ -135,10 +141,7 @@ Widget _buildBottom(BuildContext context) {
               children: [
                 Text(
                   'Total',
-                  style: AppFonts.medium.copyWith(
-                    color: AppColors.black,
-                    fontSize: 14,
-                  ),
+                  style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
                 ),
                 Text(
                   Formatter.toRupiahDouble(cart.totalPrice),
