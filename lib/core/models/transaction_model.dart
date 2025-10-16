@@ -89,6 +89,9 @@ class TransactionItem {
     required this.id,
     required this.productId,
     required this.name,
+    required this.provider,
+    required this.category,
+    required this.kuota,
     required this.quantity,
     required this.price,
     required this.costPrice,
@@ -101,6 +104,9 @@ class TransactionItem {
   final int id;
   final int productId;
   final String name;
+  final String provider;
+  final String category;
+  final String kuota;
   final int quantity;
 
   @JsonKey(fromJson: _stringToDouble)

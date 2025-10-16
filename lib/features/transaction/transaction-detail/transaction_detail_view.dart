@@ -106,10 +106,20 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  item.name,
-                                  style: AppFonts.semiBold.copyWith(
+                                  '${item.name}|${item.provider}',
+                                  style: AppFonts.medium.copyWith(
                                     color: AppColors.black,
                                     fontSize: 12,
+                                    height: 1.0,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  '${item.category}|${item.kuota}',
+                                  style: AppFonts.medium.copyWith(
+                                    color: AppColors.black,
+                                    fontSize: 12,
+                                    height: 1.0,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -147,11 +157,11 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
                     children: [
                       Text(
                         'Total',
-                        style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
+                        style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 12),
                       ),
                       Text(
                         Formatter.toRupiahDouble(widget.transaction.total),
-                        style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
+                        style: AppFonts.semiBold.copyWith(color: AppColors.black, fontSize: 12),
                       ),
                     ],
                   ),

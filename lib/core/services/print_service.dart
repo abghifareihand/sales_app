@@ -254,7 +254,8 @@ class PrintService {
     } else {
       for (final item in data.items) {
         // Nama produk di baris pertama
-        bytes += generator.text(item.name, styles: const PosStyles(bold: true));
+        bytes += generator.text('${item.name}|${item.provider}');
+        bytes += generator.text('${item.category}|${item.kuota}');
 
         // Hitung total per item
         final totalItem = item.quantity * item.price;
@@ -269,6 +270,7 @@ class PrintService {
             styles: const PosStyles(align: PosAlign.right),
           ),
         ]);
+        bytes += generator.text('');
       }
     }
 

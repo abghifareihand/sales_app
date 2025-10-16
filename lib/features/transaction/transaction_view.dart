@@ -124,24 +124,53 @@ Widget _buildBody(BuildContext context, TransactionViewModel model) {
                 Column(
                   children:
                       transaction.items.map((item) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                '${item.name} x${item.quantity}',
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${item.name}|${item.provider}',
                                 style: AppFonts.medium.copyWith(
                                   color: AppColors.black,
                                   fontSize: 12,
+                                  height: 1.0,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            Text(
-                              Formatter.toRupiahDouble(item.subtotal.toDouble()),
-                              style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
-                            ),
-                          ],
+                              Text(
+                                '${item.category}|${item.kuota}',
+                                style: AppFonts.medium.copyWith(
+                                  color: AppColors.black,
+                                  fontSize: 12,
+                                  height: 1.0,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '${Formatter.toNoRupiahDouble(item.price)} x ${item.quantity}',
+                                      style: AppFonts.medium.copyWith(
+                                        color: AppColors.black,
+                                        fontSize: 12,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Text(
+                                    Formatter.toRupiahDouble(item.subtotal.toDouble()),
+                                    style: AppFonts.medium.copyWith(
+                                      color: AppColors.black,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         );
                       }).toList(),
                 ),
