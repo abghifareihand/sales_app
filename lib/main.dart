@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
           appBarTheme: AppBarTheme(
             elevation: 0,
             backgroundColor: AppColors.white,
+            surfaceTintColor: AppColors.white,
             foregroundColor: AppColors.primary,
             titleTextStyle: AppFonts.medium.copyWith(color: AppColors.primary, fontSize: 16),
             centerTitle: true,

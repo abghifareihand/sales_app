@@ -11,7 +11,9 @@ abstract class ProductApi {
   factory ProductApi(Dio dio, {String baseUrl}) = _ProductApi;
 
   @GET('/api/products')
-  Future<HttpResponse<ProductResponse>> products();
+  Future<HttpResponse<ProductResponse>> products(
+    @Query('search') String? search, 
+  );
 
   @POST('/api/products/return-stock')
   Future<HttpResponse<ApiResponse>> returnStock({

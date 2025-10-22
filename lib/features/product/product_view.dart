@@ -10,6 +10,7 @@ import 'package:sales_app/features/product/product-detail/product_detail_view.da
 import 'package:sales_app/features/product/product_view_model.dart';
 import 'package:sales_app/features/product/widgets/product_shimmer.dart';
 import 'package:sales_app/ui/shared/custom_appbar.dart';
+import 'package:sales_app/ui/shared/custom_search_field.dart';
 import 'package:sales_app/ui/theme/app_colors.dart';
 import 'package:sales_app/ui/theme/app_fonts.dart';
 
@@ -81,142 +82,170 @@ class ProductView extends StatelessWidget {
 }
 
 Widget _buildBody(BuildContext context, ProductViewModel model) {
-  if (model.isBusy) {
-    return ProductShimmer();
-  }
-
-  if (model.products.isEmpty) {
-    return Center(
-      child: Text(
-        'Belum ada produk',
-        style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
-      ),
-    );
-  }
-
   return RefreshIndicator(
     onRefresh: () async {
       await model.fetchProducts();
     },
-    child: GridView.builder(
-      padding: const EdgeInsets.all(24),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 24,
-        crossAxisSpacing: 24,
-        childAspectRatio: 3 / 4,
-      ),
-      itemCount: model.products.length,
-      itemBuilder: (context, index) {
-        final product = model.products[index];
-        final cart = Provider.of<CartViewModel>(context);
-
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // Card content
-            InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProductDetailView(product: product)),
-                );
-                if (result == true) {
-                  await model.fetchProducts();
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.gray),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Center(child: Assets.images.imageProduct.image(width: 60, height: 60)),
-                    ),
-                    Text(
-                      product.name ?? '-',
+    child: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 24, right: 24, top: 16),
+          child: CustomSearchField(
+            controller: model.searchController,
+            hintText: 'Cari provider, kuota, atau kategori...',
+            onChanged: model.onSearchChanged,
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        Expanded(
+          child:
+              model.isBusy
+                  ? const ProductShimmer()
+                  : model.products.isEmpty
+                  ? Center(
+                    child: Text(
+                      'Belum ada produk',
                       style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      product.provider ?? '-',
-                      style: AppFonts.medium.copyWith(
-                        color: AppColors.black,
-                        fontSize: 12,
-                        height: 1.0,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                  )
+                  : GridView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 24,
+                      crossAxisSpacing: 24,
+                      childAspectRatio: 3 / 4,
                     ),
-                    const SizedBox(height: 4.0),
-                    Text(
-                      product.category ?? '-',
-                      style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      product.kuota ?? '-',
-                      style: AppFonts.medium.copyWith(
-                        color: AppColors.black,
-                        fontSize: 10,
-                        height: 1.0,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4.0),
-                    Text(
-                      Formatter.toRupiahDouble(product.sellingPrice ?? 0),
-                      style: AppFonts.medium.copyWith(
-                        color: AppColors.black.withValues(alpha: 0.5),
-                        fontSize: 12,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      'Sisa stok: ${product.quantity ?? 0}',
-                      style: AppFonts.regular.copyWith(
-                        color: AppColors.black.withValues(alpha: 0.5),
-                        fontSize: 10,
-                        height: 1.0,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 10,
-              right: 10,
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color:
-                      product.quantity != null && product.quantity! > 0
-                          ? AppColors.primary
-                          : Colors.grey,
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
-                  onPressed:
-                      product.quantity != null && product.quantity! > 0
-                          ? () {
-                            cart.addProduct(product);
-                          }
-                          : null,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+                    itemCount: model.products.length,
+                    itemBuilder: (context, index) {
+                      final product = model.products[index];
+                      final cart = Provider.of<CartViewModel>(context);
+
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProductDetailView(product: product),
+                                ),
+                              );
+                              if (result == true) {
+                                await model.fetchProducts();
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.gray),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Center(
+                                      child: Assets.images.imageProduct.image(
+                                        width: 60,
+                                        height: 60,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    product.name ?? '-',
+                                    style: AppFonts.medium.copyWith(
+                                      color: AppColors.black,
+                                      fontSize: 14,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    product.provider ?? '-',
+                                    style: AppFonts.medium.copyWith(
+                                      color: AppColors.black,
+                                      fontSize: 12,
+                                      height: 1.0,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4.0),
+                                  Text(
+                                    product.category ?? '-',
+                                    style: AppFonts.medium.copyWith(
+                                      color: AppColors.black,
+                                      fontSize: 12,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    product.kuota ?? '-',
+                                    style: AppFonts.medium.copyWith(
+                                      color: AppColors.black,
+                                      fontSize: 10,
+                                      height: 1.0,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4.0),
+                                  Text(
+                                    Formatter.toRupiahDouble(product.sellingPrice ?? 0),
+                                    style: AppFonts.medium.copyWith(
+                                      color: AppColors.black.withValues(alpha: 0.5),
+                                      fontSize: 12,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    'Sisa stok: ${product.quantity ?? 0}',
+                                    style: AppFonts.regular.copyWith(
+                                      color: AppColors.black.withValues(alpha: 0.5),
+                                      fontSize: 10,
+                                      height: 1.0,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 10,
+                            right: 10,
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color:
+                                    product.quantity != null && product.quantity! > 0
+                                        ? AppColors.primary
+                                        : Colors.grey,
+                              ),
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.shopping_cart_outlined,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                onPressed:
+                                    product.quantity != null && product.quantity! > 0
+                                        ? () {
+                                          cart.addProduct(product);
+                                        }
+                                        : null,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+        ),
+      ],
     ),
   );
 }
