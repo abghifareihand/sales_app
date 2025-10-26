@@ -270,7 +270,8 @@ class PrintService {
             styles: const PosStyles(align: PosAlign.right),
           ),
         ]);
-        bytes += generator.text('');
+        // Feed 4 dot ≈ 0.5 mm
+        bytes += generator.rawBytes([0x1B, 0x4A, 4]);
       }
     }
 
