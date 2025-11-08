@@ -7,6 +7,7 @@ import 'package:sales_app/features/outlet/add-outlet/add_outlet_view.dart';
 import 'package:sales_app/features/outlet/outlet_view_model.dart';
 import 'package:sales_app/features/outlet/widgets/outlet_shimmer.dart';
 import 'package:sales_app/ui/shared/custom_appbar.dart';
+import 'package:sales_app/ui/shared/custom_search_field.dart';
 import 'package:sales_app/ui/theme/app_colors.dart';
 import 'package:sales_app/ui/theme/app_fonts.dart';
 
@@ -48,72 +49,88 @@ class OutletView extends StatelessWidget {
 }
 
 Widget _buildBody(BuildContext context, OutletViewModel model) {
-  if (model.isBusy && model.outlets.isEmpty) {
-    return OutletShimmer();
-  }
-
-  if (model.outlets.isEmpty) {
-    return Center(
-      child: Text(
-        'Belum ada outlet',
-        style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
-      ),
-    );
-  }
-
   return RefreshIndicator(
     onRefresh: () async {
       await model.fetchOutlets();
     },
-    child: GridView.builder(
-      padding: EdgeInsets.all(24),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 24,
-        crossAxisSpacing: 24,
-        childAspectRatio: 3 / 4,
-      ),
-      itemCount: model.outlets.length,
-      itemBuilder: (context, index) {
-        final outlet = model.outlets[index];
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.gray),
+    child: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 24, right: 24, top: 16),
+          child: CustomSearchField(
+            controller: model.searchController,
+            hintText: 'Cari outlet...',
+            onChanged: model.onSearchChanged,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: Center(child: Assets.images.imageStore.image(width: 80, height: 80))),
-              const SizedBox(height: 8),
-              Text(
-                outlet.nameOutlet ?? '-',
-                style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                outlet.idOutlet ?? '-',
-                style: AppFonts.medium.copyWith(
-                  color: AppColors.black.withValues(alpha: 0.5),
-                  fontSize: 12,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                outlet.addressOutlet ?? '-',
-                style: AppFonts.regular.copyWith(
-                  color: AppColors.black.withValues(alpha: 0.5),
-                  fontSize: 10,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        );
-      },
+        ),
+        const SizedBox(height: 8.0),
+        Expanded(
+          child:
+              model.isBusy
+                  ? const OutletShimmer()
+                  : model.outlets.isEmpty
+                  ? Center(
+                    child: Text(
+                      'Belum ada outlet',
+                      style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
+                    ),
+                  )
+                  : GridView.builder(
+                    padding: EdgeInsets.all(24),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 24,
+                      crossAxisSpacing: 24,
+                      childAspectRatio: 3 / 4,
+                    ),
+                    itemCount: model.outlets.length,
+                    itemBuilder: (context, index) {
+                      final outlet = model.outlets[index];
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.gray),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Center(
+                                child: Assets.images.imageStore.image(width: 80, height: 80),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              outlet.nameOutlet ?? '-',
+                              style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              outlet.idOutlet ?? '-',
+                              style: AppFonts.medium.copyWith(
+                                color: AppColors.black.withValues(alpha: 0.5),
+                                fontSize: 12,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              outlet.addressOutlet ?? '-',
+                              style: AppFonts.regular.copyWith(
+                                color: AppColors.black.withValues(alpha: 0.5),
+                                fontSize: 10,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+        ),
+      ],
     ),
   );
 }

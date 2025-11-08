@@ -10,7 +10,9 @@ abstract class OutletApi {
   factory OutletApi(Dio dio, {String baseUrl}) = _OutletApi;
 
   @GET('/api/outlets')
-  Future<HttpResponse<OutletResponse>> outlets();
+  Future<HttpResponse<OutletResponse>> outlets(
+    @Query('search') String? search, 
+  );
 
   @POST('/api/outlets')
   Future<HttpResponse<AddOutletResponse>> addOutlet({

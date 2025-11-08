@@ -13,7 +13,6 @@ class ProductViewModel extends BaseViewModel {
   final ProductApi productApi;
 
   final TextEditingController searchController = TextEditingController();
-
   List<Product> products = [];
   Timer? _debounce;
 

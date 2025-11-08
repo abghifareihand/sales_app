@@ -18,9 +18,10 @@ class _OutletApi implements OutletApi {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<HttpResponse<OutletResponse>> outlets() async {
+  Future<HttpResponse<OutletResponse>> outlets(String? search) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'search': search};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<HttpResponse<OutletResponse>>(

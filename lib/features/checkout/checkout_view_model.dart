@@ -69,10 +69,10 @@ class CheckoutViewModel extends BaseViewModel {
     setBusy(false);
   }
 
-  Future<void> fetchOutlets() async {
+  Future<void> fetchOutlets({String? search}) async {
     setBusy(true);
     try {
-      final HttpResponse<OutletResponse> response = await outletApi.outlets();
+      final HttpResponse<OutletResponse> response = await outletApi.outlets(search);
       if (response.response.statusCode == 200) {
         outlets = response.data.outlets;
       }
