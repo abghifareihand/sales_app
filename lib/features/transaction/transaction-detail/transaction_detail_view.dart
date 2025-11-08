@@ -6,6 +6,7 @@ import 'package:sales_app/ui/shared/custom_appbar.dart';
 import 'package:sales_app/ui/shared/custom_button.dart';
 import 'package:sales_app/ui/shared/custom_dotted.dart';
 import 'package:sales_app/ui/shared/custom_receipt.dart';
+import 'package:sales_app/ui/shared/custom_text_field.dart';
 import 'package:sales_app/ui/theme/app_colors.dart';
 import 'package:sales_app/ui/theme/app_fonts.dart';
 
@@ -24,12 +25,66 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
   Future<void> _handlePrint() async {
     if (_isPrinting) return;
 
+    // Minta input uang pembeli dulu
+    final moneyController = TextEditingController();
+    final double total = widget.transaction.total;
+
+    final bayar = await showDialog<double>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.white,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomTextField(
+                controller: moneyController,
+                keyboardType: TextInputType.number,
+                label: 'Uang Pembeli',
+                hintText: 'Jumlah Uang',
+                textInputAction: TextInputAction.done,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+            ElevatedButton(
+              onPressed: () {
+                final value = double.tryParse(
+                  moneyController.text.replaceAll('.', '').replaceAll(',', ''),
+                );
+                if (value == null || value < total) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Uang pembeli tidak cukup'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                Navigator.pop(context, value);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (bayar == null) return; // batal input
+
     setState(() {
       _isPrinting = true;
     });
 
     try {
-      await _printService.printReceipt(widget.transaction);
+      final double kembalian = bayar - total;
+      await _printService.printReceipt(widget.transaction, bayar: bayar, kembalian: kembalian);
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Struk berhasil dicetak'), backgroundColor: Colors.green),

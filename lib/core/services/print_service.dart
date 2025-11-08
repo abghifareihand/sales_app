@@ -196,20 +196,20 @@ class PrintService {
     return bytes;
   }
 
-  Future<void> printReceipt(Transaction data) async {
+  Future<void> printReceipt(Transaction data, {double? bayar, double? kembalian}) async {
     final connected = await ensureConnected();
     if (!connected) {
       throw PrintServiceException('Printer belum terhubung.');
     }
 
-    final bytes = await buildReceiptBytes(data);
+    final bytes = await buildReceiptBytes(data, bayar: bayar, kembalian: kembalian);
     final success = await _write(bytes);
     if (!success) {
       throw PrintServiceException('Gagal mengirim data ke printer.');
     }
   }
 
-  Future<List<int>> buildReceiptBytes(Transaction data) async {
+  Future<List<int>> buildReceiptBytes(Transaction data, {double? bayar, double? kembalian}) async {
     final profile = await CapabilityProfile.load();
     final generator = Generator(PaperSize.mm58, profile);
     List<int> bytes = [];
@@ -277,6 +277,7 @@ class PrintService {
 
     bytes += generator.hr();
 
+    // total
     bytes += generator.row([
       PosColumn(text: 'Total', width: 6, styles: PosStyles(bold: true)),
       PosColumn(
@@ -285,6 +286,28 @@ class PrintService {
         styles: const PosStyles(align: PosAlign.right, bold: true),
       ),
     ]);
+
+    if (bayar != null) {
+      bytes += generator.row([
+        PosColumn(text: 'Uang Diterima', width: 6),
+        PosColumn(
+          text: Formatter.toRupiahDouble(bayar),
+          width: 6,
+          styles: const PosStyles(align: PosAlign.right),
+        ),
+      ]);
+    }
+
+    if (kembalian != null) {
+      bytes += generator.row([
+        PosColumn(text: 'Kembalian', width: 6),
+        PosColumn(
+          text: Formatter.toRupiahDouble(kembalian),
+          width: 6,
+          styles: const PosStyles(align: PosAlign.right),
+        ),
+      ]);
+    }
 
     bytes += generator.emptyLines(1);
     bytes += generator.text(
