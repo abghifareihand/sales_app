@@ -16,7 +16,8 @@ class CartView extends StatelessWidget {
   Color _getProviderColor(String? provider) {
     final p = (provider ?? '').toLowerCase();
     if (p.contains('telkomsel') || p.contains('tsel')) return const Color(0xFFEF4444);
-    if (p.contains('indosat') || p.contains('isat') || p.contains('im3')) return const Color(0xFFF59E0B);
+    if (p.contains('indosat') || p.contains('isat') || p.contains('im3'))
+      return const Color(0xFFF59E0B);
     if (p.contains('xl')) return const Color(0xFF2563EB);
     if (p.contains('axis')) return const Color(0xFF9333EA);
     if (p.contains('smartfren')) return const Color(0xFFEC4899);
@@ -44,7 +45,8 @@ class CartView extends StatelessWidget {
                   iconColor: AppColors.error,
                   iconBgColor: const Color(0xFFFEE2E2),
                   title: 'Kosongkan Keranjang?',
-                  message: 'Semua produk yang telah Anda pilih akan dihapus dari daftar pesanan penjualan.',
+                  message:
+                      'Semua produk yang telah Anda pilih akan dihapus dari daftar pesanan penjualan.',
                   confirmLabel: 'Ya, Kosongkan',
                   cancelLabel: 'Batal',
                   isDestructive: true,
@@ -77,11 +79,7 @@ class CartView extends StatelessWidget {
                   color: AppColors.primaryLight.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.shopping_cart_outlined,
-                  size: 48,
-                  color: AppColors.primary,
-                ),
+                child: const Icon(Icons.shopping_cart_outlined, size: 48, color: AppColors.primary),
               ),
               const SizedBox(height: 20),
               Text(
@@ -92,7 +90,11 @@ class CartView extends StatelessWidget {
               Text(
                 'Pilih produk dari katalog untuk mulai transaksi penjualan saat kunjungan ke outlet.',
                 textAlign: TextAlign.center,
-                style: AppFonts.regular.copyWith(color: AppColors.slate500, fontSize: 13, height: 1.4),
+                style: AppFonts.regular.copyWith(
+                  color: AppColors.slate500,
+                  fontSize: 13,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 24),
               Button.filled(
@@ -176,7 +178,10 @@ class CartView extends StatelessWidget {
                         Expanded(
                           child: Text(
                             product.name ?? '',
-                            style: AppFonts.semiBold.copyWith(color: AppColors.slate900, fontSize: 14),
+                            style: AppFonts.semiBold.copyWith(
+                              color: AppColors.slate900,
+                              fontSize: 14,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -200,12 +205,17 @@ class CartView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              Formatter.toRupiahDouble((product.sellingPrice ?? 0) * cartItem.quantity),
+                              Formatter.toRupiahDouble(
+                                (product.sellingPrice ?? 0) * cartItem.quantity,
+                              ),
                               style: AppFonts.bold.copyWith(color: AppColors.primary, fontSize: 15),
                             ),
                             Text(
                               '${Formatter.toRupiahDouble(product.sellingPrice ?? 0)} / pcs',
-                              style: AppFonts.regular.copyWith(color: AppColors.slate400, fontSize: 10),
+                              style: AppFonts.regular.copyWith(
+                                color: AppColors.slate400,
+                                fontSize: 10,
+                              ),
                             ),
                           ],
                         ),
@@ -221,10 +231,16 @@ class CartView extends StatelessWidget {
                             children: [
                               InkWell(
                                 onTap: () => cart.removeProduct(product.id!),
-                                borderRadius: const BorderRadius.horizontal(left: Radius.circular(10)),
+                                borderRadius: const BorderRadius.horizontal(
+                                  left: Radius.circular(10),
+                                ),
                                 child: Container(
                                   padding: const EdgeInsets.all(6),
-                                  child: const Icon(Icons.remove_rounded, size: 18, color: AppColors.slate700),
+                                  child: const Icon(
+                                    Icons.remove_rounded,
+                                    size: 18,
+                                    color: AppColors.slate700,
+                                  ),
                                 ),
                               ),
                               Container(
@@ -233,7 +249,10 @@ class CartView extends StatelessWidget {
                                 child: Text(
                                   '${cartItem.quantity}',
                                   textAlign: TextAlign.center,
-                                  style: AppFonts.bold.copyWith(color: AppColors.slate900, fontSize: 13),
+                                  style: AppFonts.bold.copyWith(
+                                    color: AppColors.slate900,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ),
                               InkWell(
@@ -242,15 +261,18 @@ class CartView extends StatelessWidget {
                                     cart.addProduct(product);
                                   }
                                 },
-                                borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
+                                borderRadius: const BorderRadius.horizontal(
+                                  right: Radius.circular(10),
+                                ),
                                 child: Container(
                                   padding: const EdgeInsets.all(6),
                                   child: Icon(
                                     Icons.add_rounded,
                                     size: 18,
-                                    color: cartItem.quantity < (product.quantity ?? 999)
-                                        ? AppColors.primary
-                                        : AppColors.slate300,
+                                    color:
+                                        cartItem.quantity < (product.quantity ?? 999)
+                                            ? AppColors.primary
+                                            : AppColors.slate300,
                                   ),
                                 ),
                               ),
@@ -275,7 +297,7 @@ class CartView extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
         boxShadow: [
@@ -285,9 +307,7 @@ class CartView extends StatelessWidget {
             offset: const Offset(0, -4),
           ),
         ],
-        border: const Border(
-          top: BorderSide(color: Color(0xFFF1F5F9), width: 1),
-        ),
+        border: const Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1)),
       ),
       child: SafeArea(
         top: false,
@@ -305,10 +325,7 @@ class CartView extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     Formatter.toRupiahDouble(cart.totalPrice),
-                    style: AppFonts.bold.copyWith(
-                      color: AppColors.slate900,
-                      fontSize: 18,
-                    ),
+                    style: AppFonts.bold.copyWith(color: AppColors.slate900, fontSize: 18),
                   ),
                 ],
               ),
@@ -320,10 +337,11 @@ class CartView extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => CheckoutView(
-                        cartItems: cart.items.values.toList(),
-                        totalPrice: cart.totalPrice,
-                      ),
+                      builder:
+                          (_) => CheckoutView(
+                            cartItems: cart.items.values.toList(),
+                            totalPrice: cart.totalPrice,
+                          ),
                     ),
                   );
                 },

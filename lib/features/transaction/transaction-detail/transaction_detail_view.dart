@@ -86,15 +86,30 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
                   keyboardType: TextInputType.number,
                   label: 'Nominal Uang Diterima',
                   hintText: 'Masukkan jumlah uang',
-                  prefixIcon: const Icon(Icons.attach_money_rounded, color: AppColors.primary, size: 20),
+                  prefixIcon: const Icon(
+                    Icons.attach_money_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                   textInputAction: TextInputAction.done,
                 ),
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: ActionChip(
-                    avatar: const Icon(Icons.check_circle_outline_rounded, size: 14, color: AppColors.primary),
-                    label: const Text('Uang Pas', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.slate700)),
+                    avatar: const Icon(
+                      Icons.check_circle_outline_rounded,
+                      size: 14,
+                      color: AppColors.primary,
+                    ),
+                    label: const Text(
+                      'Uang Pas',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.slate700,
+                      ),
+                    ),
                     backgroundColor: AppColors.slate50,
                     side: const BorderSide(color: AppColors.slate200),
                     onPressed: () {
@@ -115,7 +130,14 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             backgroundColor: AppColors.slate50,
                           ),
-                          child: const Text('Batal', style: TextStyle(color: AppColors.slate600, fontWeight: FontWeight.w600, fontSize: 13)),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(
+                              color: AppColors.slate600,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -154,9 +176,18 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            child: const Text('Cetak Struk', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                            child: const Text(
+                              'Cetak Struk',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -330,12 +361,14 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.all(16),
-        child: Button.filled(
-          onPressed: _isPrinting ? null : _handlePrint,
-          label: 'Cetak Transaksi',
-          isLoading: _isPrinting,
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: Button.filled(
+            onPressed: _isPrinting ? null : _handlePrint,
+            label: 'Cetak Transaksi',
+            isLoading: _isPrinting,
+          ),
         ),
       ),
     );
