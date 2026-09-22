@@ -8,18 +8,15 @@ class AppColors {
   static const Color primaryLight = Color(0xFFFFF7ED);
   static const Color primarySurface = Color(0xFFFFF2E2);
 
-  // Gradient Web Owner
-  static const LinearGradient amberGradient = LinearGradient(
-    colors: [Color(0xFFB45309), Color(0xFFFF9F43), Color(0xFFF59E0B)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
+  // Radiant Web Owner Primary Gradient (Warm, vibrant, fresh — NO dark brown)
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [Color(0xFFFF9F43), Color(0xFFF59E0B)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  // Alias amberGradient to primaryGradient for 100% unified consistent gradient everywhere
+  static const LinearGradient amberGradient = primaryGradient;
 
   // Modern Slate & Neutrals
   static const Color dark = Color(0xFF0F172A);

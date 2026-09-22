@@ -114,13 +114,13 @@ class Button extends StatelessWidget {
         gradient ??
         (color == AppColors.primary
             ? (isInteractive
-                ? AppColors.amberGradient
+                ? AppColors.primaryGradient
                 : LinearGradient(
-                  colors: [
-                    const Color(0xFFB45309).withValues(alpha: 0.5),
-                    const Color(0xFFFF9F43).withValues(alpha: 0.5),
-                  ],
-                ))
+                    colors: [
+                      const Color(0xFFFF9F43).withValues(alpha: 0.5),
+                      const Color(0xFFF59E0B).withValues(alpha: 0.5),
+                    ],
+                  ))
             : null);
 
     return Container(
@@ -133,12 +133,12 @@ class Button extends StatelessWidget {
         boxShadow:
             (isInteractive && color == AppColors.primary)
                 ? [
-                  BoxShadow(
-                    color: const Color(0xFFB45309).withValues(alpha: 0.35),
-                    blurRadius: 14,
-                    offset: const Offset(0, 5),
-                  ),
-                ]
+                    BoxShadow(
+                      color: const Color(0xFFFF9F43).withValues(alpha: 0.35),
+                      blurRadius: 14,
+                      offset: const Offset(0, 5),
+                    ),
+                  ]
                 : null,
       ),
       child: Material(

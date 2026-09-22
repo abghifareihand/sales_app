@@ -95,15 +95,11 @@ class CartView extends StatelessWidget {
                 style: AppFonts.regular.copyWith(color: AppColors.slate500, fontSize: 13, height: 1.4),
               ),
               const SizedBox(height: 24),
-              ElevatedButton.icon(
+              Button.filled(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.storefront_outlined, size: 18, color: Colors.white),
-                label: const Text('Kembali ke Katalog', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
+                label: 'Kembali ke Katalog',
+                width: 220,
               ),
             ],
           ),

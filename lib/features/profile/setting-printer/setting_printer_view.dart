@@ -590,28 +590,44 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
             ),
           ),
           const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: isCurrentConnected ? null : () => _connectToPrinter(printer),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isCurrentConnected ? const Color(0xFF16A34A) : AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              elevation: 0,
+          Container(
+            decoration: BoxDecoration(
+              gradient: isCurrentConnected
+                  ? const LinearGradient(colors: [Color(0xFF16A34A), Color(0xFF15803D)])
+                  : AppColors.primaryGradient,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: (isCurrentConnected ? const Color(0xFF16A34A) : AppColors.primary).withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: isBusy
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            child: ElevatedButton(
+              onPressed: isCurrentConnected ? null : () => _connectToPrinter(printer),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                elevation: 0,
+              ),
+              child: isBusy
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text(
+                      isCurrentConnected ? 'Terhubung' : 'Hubungkan',
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                     ),
-                  )
-                : Text(
-                    isCurrentConnected ? 'Terhubung' : 'Hubungkan',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
+            ),
           ),
         ],
       ),
