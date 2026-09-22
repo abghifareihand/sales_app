@@ -164,7 +164,7 @@ class LoginView extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     Text(
-                      'Nilwansyah • Multi-Branch System',
+                      'Multi-Branch System',
                       style: AppFonts.medium.copyWith(
                         color: AppColors.slateMuted,
                         fontSize: 12,
