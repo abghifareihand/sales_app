@@ -16,8 +16,7 @@ class CartView extends StatelessWidget {
   Color _getProviderColor(String? provider) {
     final p = (provider ?? '').toLowerCase();
     if (p.contains('telkomsel') || p.contains('tsel')) return const Color(0xFFEF4444);
-    if (p.contains('indosat') || p.contains('isat') || p.contains('im3'))
-      return const Color(0xFFF59E0B);
+    if (p.contains('indosat') || p.contains('isat') || p.contains('im3')) return const Color(0xFFF59E0B);
     if (p.contains('xl')) return const Color(0xFF2563EB);
     if (p.contains('axis')) return const Color(0xFF9333EA);
     if (p.contains('smartfren')) return const Color(0xFFEC4899);
