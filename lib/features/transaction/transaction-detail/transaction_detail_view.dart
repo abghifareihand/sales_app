@@ -31,46 +31,141 @@ class _TransactionDetailViewState extends State<TransactionDetailView> {
 
     final bayar = await showDialog<double>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
+      builder: (ctx) {
+        return Dialog(
           backgroundColor: AppColors.white,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomTextField(
-                controller: moneyController,
-                keyboardType: TextInputType.number,
-                label: 'Uang Pembeli',
-                hintText: 'Jumlah Uang',
-                textInputAction: TextInputAction.done,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
-            ElevatedButton(
-              onPressed: () {
-                final value = double.tryParse(
-                  moneyController.text.replaceAll('.', '').replaceAll(',', ''),
-                );
-                if (value == null || value < total) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Uang pembeli tidak cukup'),
-                      backgroundColor: Colors.red,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          elevation: 12,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF16A34A).withValues(alpha: 0.2),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.payments_rounded, color: Color(0xFF16A34A), size: 30),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Input Uang Pembeli',
+                  style: AppFonts.bold.copyWith(color: AppColors.slate900, fontSize: 17),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFBEB),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFFDE68A)),
+                  ),
+                  child: Text(
+                    'Total: ${Formatter.toRupiahDouble(total)}',
+                    style: const TextStyle(
+                      color: Color(0xFFB45309),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
                     ),
-                  );
-                  return;
-                }
-                Navigator.pop(context, value);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('OK'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: moneyController,
+                  keyboardType: TextInputType.number,
+                  label: 'Nominal Uang Diterima',
+                  hintText: 'Masukkan jumlah uang',
+                  prefixIcon: const Icon(Icons.attach_money_rounded, color: AppColors.primary, size: 20),
+                  textInputAction: TextInputAction.done,
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ActionChip(
+                    avatar: const Icon(Icons.check_circle_outline_rounded, size: 14, color: AppColors.primary),
+                    label: const Text('Uang Pas', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.slate700)),
+                    backgroundColor: AppColors.slate50,
+                    side: const BorderSide(color: AppColors.slate200),
+                    onPressed: () {
+                      moneyController.text = total.toInt().toString();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.slate300),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            backgroundColor: AppColors.slate50,
+                          ),
+                          child: const Text('Batal', style: TextStyle(color: AppColors.slate600, fontWeight: FontWeight.w600, fontSize: 13)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: AppColors.amberGradient,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.35),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              final value = double.tryParse(
+                                moneyController.text.replaceAll('.', '').replaceAll(',', ''),
+                              );
+                              if (value == null || value < total) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Uang pembeli kurang dari total tagihan'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                                return;
+                              }
+                              Navigator.pop(ctx, value);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Cetak Struk', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

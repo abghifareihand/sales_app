@@ -25,8 +25,9 @@ class ProductView extends StatelessWidget {
       onModelDispose: (ProductViewModel model) => model.disposeModel(),
       builder: (BuildContext context, ProductViewModel model, _) {
         return Scaffold(
+          backgroundColor: AppColors.surface,
           appBar: CustomAppBar(
-            title: 'Product',
+            title: 'Katalog Produk',
             actions: [
               Consumer<CartViewModel>(
                 builder: (context, cart, _) {
@@ -35,43 +36,49 @@ class ProductView extends StatelessWidget {
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const CartView()));
                     },
-                    borderRadius: BorderRadius.circular(50),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.shopping_bag_outlined, color: AppColors.primary),
-                        ),
-                        if (cartCount > 0)
-                          Positioned(
-                            top: 4,
-                            right: 4,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                              child: Center(
-                                child: Text(
-                                  '$cartCount',
-                                  style: AppFonts.bold.copyWith(
-                                    color: AppColors.white,
-                                    fontSize: 8,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          const Icon(Icons.shopping_bag_outlined, color: AppColors.dark, size: 20),
+                          if (cartCount > 0)
+                            Positioned(
+                              top: -4,
+                              right: -4,
+                              child: Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                child: Center(
+                                  child: Text(
+                                    '$cartCount',
+                                    style: AppFonts.bold.copyWith(
+                                      color: AppColors.white,
+                                      fontSize: 9,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },
               ),
-              const SizedBox(width: 12.0),
+              const SizedBox(width: 16.0),
             ],
           ),
           body: _buildBody(context, model),
@@ -83,169 +90,228 @@ class ProductView extends StatelessWidget {
 
 Widget _buildBody(BuildContext context, ProductViewModel model) {
   return RefreshIndicator(
+    color: AppColors.primary,
     onRefresh: () async {
       await model.fetchProducts();
     },
     child: Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 24, right: 24, top: 16),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
           child: CustomSearchField(
             controller: model.searchController,
-            hintText: 'Cari provider, kuota, atau kategori...',
+            hintText: 'Cari provider, kuota, atau produk...',
             onChanged: model.onSearchChanged,
           ),
         ),
-        const SizedBox(height: 8.0),
         Expanded(
-          child:
-              model.isBusy
-                  ? const ProductShimmer()
-                  : model.products.isEmpty
+          child: model.isBusy
+              ? const ProductShimmer()
+              : model.products.isEmpty
                   ? Center(
-                    child: Text(
-                      'Belum ada produk',
-                      style: AppFonts.medium.copyWith(color: AppColors.black, fontSize: 14),
-                    ),
-                  )
-                  : GridView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 24,
-                      crossAxisSpacing: 24,
-                      childAspectRatio: 3 / 4,
-                    ),
-                    itemCount: model.products.length,
-                    itemBuilder: (context, index) {
-                      final product = model.products[index];
-                      final cart = Provider.of<CartViewModel>(context);
-
-                      return Stack(
-                        clipBehavior: Clip.none,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductDetailView(product: product),
-                                ),
-                              );
-                              if (result == true) {
-                                await model.fetchProducts();
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: AppColors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.gray),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Center(
-                                      child: Assets.images.imageProduct.image(
-                                        width: 60,
-                                        height: 60,
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    product.name ?? '-',
-                                    style: AppFonts.medium.copyWith(
-                                      color: AppColors.black,
-                                      fontSize: 14,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    product.provider ?? '-',
-                                    style: AppFonts.medium.copyWith(
-                                      color: AppColors.black,
-                                      fontSize: 12,
-                                      height: 1.0,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4.0),
-                                  Text(
-                                    product.category ?? '-',
-                                    style: AppFonts.medium.copyWith(
-                                      color: AppColors.black,
-                                      fontSize: 12,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    product.kuota ?? '-',
-                                    style: AppFonts.medium.copyWith(
-                                      color: AppColors.black,
-                                      fontSize: 10,
-                                      height: 1.0,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4.0),
-                                  Text(
-                                    Formatter.toRupiahDouble(product.sellingPrice ?? 0),
-                                    style: AppFonts.medium.copyWith(
-                                      color: AppColors.black.withValues(alpha: 0.5),
-                                      fontSize: 12,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    'Sisa stok: ${product.quantity ?? 0}',
-                                    style: AppFonts.regular.copyWith(
-                                      color: AppColors.black.withValues(alpha: 0.5),
-                                      fontSize: 10,
-                                      height: 1.0,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 10,
-                            right: 10,
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color:
-                                    product.quantity != null && product.quantity! > 0
-                                        ? AppColors.primary
-                                        : Colors.grey,
-                              ),
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.shopping_cart_outlined,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                                onPressed:
-                                    product.quantity != null && product.quantity! > 0
-                                        ? () {
-                                          cart.addProduct(product);
-                                        }
-                                        : null,
-                              ),
-                            ),
+                          const Icon(Icons.inventory_2_outlined, size: 64, color: AppColors.slateMuted),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Tidak ada produk ditemukan',
+                            style: AppFonts.medium.copyWith(color: AppColors.slateLight, fontSize: 14),
                           ),
                         ],
-                      );
-                    },
-                  ),
+                      ),
+                    )
+                  : GridView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 14,
+                        crossAxisSpacing: 14,
+                        childAspectRatio: 0.65,
+                      ),
+                      itemCount: model.products.length,
+                      itemBuilder: (context, index) {
+                        final product = model.products[index];
+                        final stock = product.quantity ?? 0;
+                        final isLowStock = stock <= 5;
+
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: AppColors.border, width: 1.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.black.withValues(alpha: 0.03),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ProductDetailView(product: product),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Top provider & kuota tag
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        // Provider Chip
+                                        Flexible(
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            decoration: BoxDecoration(
+                                              color: _getProviderColor(product.provider).withValues(alpha: 0.12),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              product.provider ?? '-',
+                                              style: AppFonts.bold.copyWith(
+                                                color: _getProviderColor(product.provider),
+                                                fontSize: 10,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        // Kuota badge
+                                        if (product.kuota != null && product.kuota!.isNotEmpty)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.dark,
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              product.kuota!,
+                                              style: AppFonts.semiBold.copyWith(
+                                                color: AppColors.white,
+                                                fontSize: 9,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+
+                                    // Image container
+                                    Expanded(
+                                      child: Container(
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.surface,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Center(
+                                          child: Assets.images.imageProduct.image(
+                                            width: 64,
+                                            height: 64,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+
+                                    // Product Name
+                                    Text(
+                                      product.name ?? '-',
+                                      style: AppFonts.bold.copyWith(
+                                        color: AppColors.dark,
+                                        fontSize: 13,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+
+                                    // Category
+                                    Text(
+                                      product.category ?? '-',
+                                      style: AppFonts.regular.copyWith(
+                                        color: AppColors.slateLight,
+                                        fontSize: 11,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+
+                                    // Price
+                                    Text(
+                                      Formatter.toRupiahDouble(product.sellingPrice ?? 0),
+                                      style: AppFonts.bold.copyWith(
+                                        color: AppColors.primaryDark,
+                                        fontSize: 14,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+
+                                    // Stock pill
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: isLowStock
+                                            ? AppColors.red.withValues(alpha: 0.1)
+                                            : AppColors.green.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: 5,
+                                            height: 5,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: isLowStock ? AppColors.red : AppColors.green,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            'Stok: $stock',
+                                            style: AppFonts.semiBold.copyWith(
+                                              color: isLowStock ? AppColors.red : AppColors.green,
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
         ),
       ],
     ),
   );
+}
+
+Color _getProviderColor(String? provider) {
+  if (provider == null) return AppColors.primary;
+  final p = provider.toLowerCase();
+  if (p.contains('telkomsel')) return const Color(0xFFE11D48);
+  if (p.contains('indosat')) return const Color(0xFFF59E0B);
+  if (p.contains('xl')) return const Color(0xFF2563EB);
+  if (p.contains('tri')) return const Color(0xFFEA580C);
+  if (p.contains('smartfren')) return const Color(0xFFDB2777);
+  return AppColors.primary;
 }

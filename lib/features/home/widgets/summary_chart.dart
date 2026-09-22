@@ -11,38 +11,42 @@ class SummaryChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20.0),
+        border: Border.all(color: AppColors.border, width: 1.0),
         boxShadow: [
           BoxShadow(
-            offset: const Offset(0, 5),
-            color: AppColors.black.withValues(alpha: 0.05),
-            blurRadius: 30.0,
-            spreadRadius: 0,
-            blurStyle: BlurStyle.outer,
+            offset: const Offset(0, 4),
+            color: AppColors.black.withValues(alpha: 0.03),
+            blurRadius: 16.0,
           ),
         ],
       ),
       child: SfCartesianChart(
+        plotAreaBorderWidth: 0,
         primaryXAxis: CategoryAxis(
-          labelStyle: AppFonts.medium.copyWith(color: Colors.black, fontSize: 12),
+          majorGridLines: const MajorGridLines(width: 0),
+          axisLine: const AxisLine(color: AppColors.border),
+          labelStyle: AppFonts.medium.copyWith(color: AppColors.slate, fontSize: 11),
         ),
-        primaryYAxis: NumericAxis(isVisible: false),
+        primaryYAxis: const NumericAxis(isVisible: false),
         legend: Legend(
           isVisible: true,
-          textStyle: AppFonts.medium.copyWith(color: Colors.black, fontSize: 12),
+          position: LegendPosition.top,
+          alignment: ChartAlignment.center,
+          textStyle: AppFonts.medium.copyWith(color: AppColors.slate, fontSize: 12),
         ),
         tooltipBehavior: TooltipBehavior(enable: true),
         series: [
           ColumnSeries<ChartData, String>(
-            name: 'Total',
+            name: 'Penjualan',
             dataSource: data,
             xValueMapper: (ChartData d, _) => d.label,
             yValueMapper: (ChartData d, _) => d.total,
-            dataLabelMapper: (ChartData d, _) => Formatter.toRupiahDouble(d.total),
-            color: Colors.blue,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+            color: AppColors.primary,
             dataLabelSettings: DataLabelSettings(
               isVisible: true,
               builder: (
@@ -53,24 +57,23 @@ class SummaryChart extends StatelessWidget {
                 int seriesIndex,
               ) {
                 final ChartData chartData = data as ChartData;
-                final profit = chartData.total;
                 return Text(
-                  Formatter.toRupiahDouble(profit),
-                  style: AppFonts.medium.copyWith(
-                    color: profit < 0 ? Colors.red : Colors.black,
-                    fontSize: 10,
+                  Formatter.toRupiahDouble(chartData.total),
+                  style: AppFonts.semiBold.copyWith(
+                    color: AppColors.dark,
+                    fontSize: 9,
                   ),
                 );
               },
             ),
           ),
           ColumnSeries<ChartData, String>(
-            name: 'Profit',
+            name: 'Laba (Profit)',
             dataSource: data,
             xValueMapper: (ChartData d, _) => d.label,
             yValueMapper: (ChartData d, _) => d.profit,
-            dataLabelMapper: (ChartData d, _) => Formatter.toRupiahDouble(d.profit),
-            color: Colors.green,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+            color: AppColors.green,
             dataLabelSettings: DataLabelSettings(
               isVisible: true,
               builder: (
@@ -81,12 +84,11 @@ class SummaryChart extends StatelessWidget {
                 int seriesIndex,
               ) {
                 final ChartData chartData = data as ChartData;
-                final profit = chartData.profit;
                 return Text(
-                  Formatter.toRupiahDouble(profit),
-                  style: AppFonts.medium.copyWith(
-                    color: profit < 0 ? Colors.red : Colors.black,
-                    fontSize: 10,
+                  Formatter.toRupiahDouble(chartData.profit),
+                  style: AppFonts.semiBold.copyWith(
+                    color: AppColors.green,
+                    fontSize: 9,
                   ),
                 );
               },

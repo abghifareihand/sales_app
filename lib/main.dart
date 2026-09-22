@@ -29,16 +29,35 @@ class MyApp extends StatelessWidget {
             primary: AppColors.primary,
             secondary: AppColors.primary,
           ),
-          scaffoldBackgroundColor: AppColors.white,
-          bottomSheetTheme: BottomSheetThemeData(backgroundColor: AppColors.white),
-          dialogTheme: const DialogTheme(elevation: 0),
+          scaffoldBackgroundColor: AppColors.surface,
+          bottomSheetTheme: const BottomSheetThemeData(
+            backgroundColor: AppColors.white,
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+          ),
+          cardTheme: CardTheme(
+            color: AppColors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: AppColors.border, width: 0.8),
+            ),
+          ),
+          dialogTheme: DialogTheme(
+            backgroundColor: AppColors.white,
+            surfaceTintColor: Colors.transparent,
+            elevation: 8,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          ),
           useMaterial3: true,
           appBarTheme: AppBarTheme(
             elevation: 0,
-            backgroundColor: AppColors.white,
-            surfaceTintColor: AppColors.white,
-            foregroundColor: AppColors.primary,
-            titleTextStyle: AppFonts.medium.copyWith(color: AppColors.primary, fontSize: 16),
+            backgroundColor: AppColors.surface,
+            surfaceTintColor: Colors.transparent,
+            foregroundColor: AppColors.dark,
+            titleTextStyle: AppFonts.semiBold.copyWith(color: AppColors.dark, fontSize: 16),
             centerTitle: true,
           ),
           snackBarTheme: SnackBarThemeData(

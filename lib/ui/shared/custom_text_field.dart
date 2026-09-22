@@ -76,41 +76,44 @@ class _CustomTextFieldState extends State<CustomTextField> {
           readOnly: widget.readOnly,
           maxLines: widget.maxLines,
           decoration: InputDecoration(
-            hintStyle: AppFonts.medium.copyWith(color: AppColors.gray, fontSize: 14),
+            filled: true,
+            fillColor: widget.readOnly ? AppColors.borderLight : AppColors.white,
+            hintStyle: AppFonts.regular.copyWith(color: AppColors.slateMuted, fontSize: 13),
             prefixIcon: widget.prefixIcon,
             suffixIcon:
                 widget.obscureText
                     ? IconButton(
                       icon: Icon(
                         _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                        color: AppColors.gray,
+                        color: AppColors.slateMuted,
+                        size: 20,
                       ),
                       onPressed: _toggleObscureText,
                     )
                     : widget.suffixIcon,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: AppColors.gray),
+              borderRadius: BorderRadius.circular(14.0),
+              borderSide: const BorderSide(color: AppColors.border),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: AppColors.gray),
+              borderRadius: BorderRadius.circular(14.0),
+              borderSide: const BorderSide(color: AppColors.border),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: AppColors.primary),
+              borderRadius: BorderRadius.circular(14.0),
+              borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: Colors.red[800]!),
+              borderRadius: BorderRadius.circular(14.0),
+              borderSide: const BorderSide(color: AppColors.red),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: Colors.red[800]!),
+              borderRadius: BorderRadius.circular(14.0),
+              borderSide: const BorderSide(color: AppColors.red, width: 1.6),
             ),
             hintText: widget.hintText,
             errorText: widget.errorText,
-            contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+            contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           ),
         ),
       ],

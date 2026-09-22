@@ -8,44 +8,55 @@ class HistoryShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.all(24),
-      itemCount: 3,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      padding: const EdgeInsets.all(20),
+      itemCount: 4,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         return Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.gray),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.slate200),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Shimmer.fromColors(
+            baseColor: AppColors.slate200,
+            highlightColor: AppColors.slate50,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(width: 140, height: 14, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                      const SizedBox(height: 8),
+                      Container(width: 80, height: 12, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                      const SizedBox(height: 10),
+                      Container(width: 110, height: 18, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6))),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Container(width: 150, height: 14, color: Colors.white),
-                    Container(width: 60, height: 12, color: Colors.white),
+                    Container(width: 65, height: 12, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                    const SizedBox(height: 6),
+                    Container(width: 45, height: 10, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
                   ],
                 ),
-              ),
-              const SizedBox(height: 4),
-              Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
-                child: Container(width: 100, height: 12, color: Colors.white),
-              ),
-              const SizedBox(height: 8),
-              Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
-                child: Container(width: 120, height: 20, color: Colors.white),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

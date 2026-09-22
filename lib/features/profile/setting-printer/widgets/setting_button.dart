@@ -27,7 +27,7 @@ class SettingButton extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               offset: const Offset(0, 5),
-              color: AppColors.black.withOpacity(5 / 100),
+              color: AppColors.black.withValues(alpha: 0.05),
               blurRadius: 30.0,
               spreadRadius: 0,
               blurStyle: BlurStyle.outer,

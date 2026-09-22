@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sales_app/core/services/print_service.dart';
 import 'package:sales_app/ui/shared/custom_appbar.dart';
+import 'package:sales_app/ui/shared/custom_dialog.dart';
+import 'package:sales_app/ui/shared/custom_snackbar.dart';
 import 'package:sales_app/ui/theme/app_colors.dart';
+import 'package:sales_app/ui/theme/app_fonts.dart';
 
 class SettingPrinterView extends StatefulWidget {
   const SettingPrinterView({super.key});
@@ -56,18 +59,16 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
       if (!hasPermission) {
         if (!mounted) return;
 
-        // Show permission dialog before requesting
         final shouldRequest = await _showPermissionDialog();
         if (!shouldRequest) {
-          _showMessage('Izin Bluetooth diperlukan untuk memindai printer', Colors.red);
+          _showError('Izin Bluetooth diperlukan untuk memindai printer');
           return;
         }
 
-        // Request permission
         final permissionGranted = await _printService.requestBluetoothPermission();
         if (!permissionGranted) {
           if (!mounted) return;
-          _showMessage('Izin Bluetooth ditolak. Aktifkan di pengaturan aplikasi.', Colors.red);
+          _showError('Izin Bluetooth ditolak. Aktifkan di pengaturan aplikasi.');
           return;
         }
       }
@@ -75,12 +76,8 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
       final enabled = await _printService.isBluetoothEnabled;
       if (!enabled) {
         if (!mounted) return;
-        final shouldOpenSettings = await _showBluetoothDialog();
-        if (shouldOpenSettings) {
-          // You can add code here to open bluetooth settings if needed
-          // For now, just show the message
-        }
-        _showMessage('Aktifkan Bluetooth terlebih dahulu', Colors.orange);
+        await _showBluetoothDialog();
+        _showWarning('Aktifkan Bluetooth terlebih dahulu');
         return;
       }
 
@@ -91,11 +88,11 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
       });
 
       if (printers.isEmpty) {
-        _showMessage('Tidak ada printer terdeteksi', Colors.orange);
+        _showWarning('Tidak ada printer terdeteksi di sekitar');
       }
     } catch (error) {
       if (!mounted) return;
-      _showMessage('Gagal memindai printer: $error', Colors.red);
+      _showError('Gagal memindai printer: $error');
     } finally {
       if (mounted) {
         setState(() {
@@ -108,32 +105,27 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
   Future<void> _connectToPrinter(BluetoothPrinter printer) async {
     if (_processingAddress != null || _isDisconnecting) return;
 
-    // Check bluetooth permission before connecting
     final hasPermission = await _printService.hasBluetoothPermission;
     if (!hasPermission) {
       final shouldRequest = await _showPermissionDialog();
       if (!shouldRequest) {
-        _showMessage('Izin Bluetooth diperlukan untuk terhubung ke printer', Colors.red);
+        _showError('Izin Bluetooth diperlukan untuk terhubung ke printer');
         return;
       }
 
       final permissionGranted = await _printService.requestBluetoothPermission();
       if (!permissionGranted) {
         if (!mounted) return;
-        _showMessage('Izin Bluetooth ditolak. Aktifkan di pengaturan aplikasi.', Colors.red);
+        _showError('Izin Bluetooth ditolak. Aktifkan di pengaturan aplikasi.');
         return;
       }
     }
 
-    // Check if bluetooth is enabled
     final enabled = await _printService.isBluetoothEnabled;
     if (!enabled) {
       if (!mounted) return;
-      final shouldOpenSettings = await _showBluetoothDialog();
-      if (shouldOpenSettings) {
-        // You can add code here to open bluetooth settings if needed
-      }
-      _showMessage('Aktifkan Bluetooth terlebih dahulu', Colors.orange);
+      await _showBluetoothDialog();
+      _showWarning('Aktifkan Bluetooth terlebih dahulu');
       return;
     }
 
@@ -154,9 +146,9 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
     });
 
     if (success) {
-      _showMessage('Terhubung ke ${printer.name}', Colors.green);
+      _showSuccess('Berhasil terhubung ke ${printer.name}');
     } else {
-      _showMessage('Gagal menghubungkan ke printer', Colors.red);
+      _showError('Gagal menghubungkan ke printer');
     }
   }
 
@@ -176,7 +168,7 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
       _isConnected = connected;
     });
 
-    _showMessage('Printer terputus', Colors.orange);
+    _showWarning('Koneksi printer terputus');
   }
 
   Future<void> _forgetPrinter() async {
@@ -189,94 +181,103 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
       _isConnected = false;
     });
 
-    _showMessage('Printer tersimpan dihapus', Colors.green);
+    _showSuccess('Printer tersimpan berhasil dihapus');
   }
 
   Future<void> _printTest() async {
     if (!_isConnected) {
-      _showMessage('Hubungkan printer terlebih dahulu', Colors.orange);
+      _showWarning('Hubungkan printer terlebih dahulu sebelum test print');
       return;
     }
 
     try {
       await _printService.printReceiptTest();
       if (!mounted) return;
-      _showMessage('Test print dikirim', Colors.green);
+      _showSuccess('Sample test print berhasil dikirim ke printer');
     } catch (error) {
       if (!mounted) return;
-      _showMessage('Gagal melakukan test print: $error', Colors.red);
+      _showError('Gagal melakukan test print: $error');
     }
   }
 
-  void _showMessage(String message, Color color) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+  void _showSuccess(String msg) {
+    if (mounted) CustomSnackbar.showSuccess(context, msg);
+  }
+
+  void _showError(String msg) {
+    if (mounted) CustomSnackbar.showError(context, msg);
+  }
+
+  void _showWarning(String msg) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+          backgroundColor: AppColors.warning,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
   }
 
   Future<bool> _showPermissionDialog() async {
-    return await showDialog<bool>(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: const Text('Izin Bluetooth Diperlukan'),
-                content: const Text(
-                  'Aplikasi memerlukan izin Bluetooth untuk memindai dan terhubung ke printer thermal. Apakah Anda ingin memberikan izin?',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Batal'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Izinkan'),
-                  ),
-                ],
-              ),
-        ) ??
-        false;
+    final res = await CustomConfirmationDialog.show(
+      context,
+      icon: Icons.bluetooth_rounded,
+      iconColor: AppColors.primary,
+      iconBgColor: AppColors.primaryLight.withValues(alpha: 0.35),
+      title: 'Izin Bluetooth Diperlukan',
+      message: 'Aplikasi memerlukan izin Bluetooth untuk memindai dan terhubung ke printer thermal saat mencetak struk transaksi.',
+      confirmLabel: 'Berikan Izin',
+      cancelLabel: 'Batal',
+    );
+    return res ?? false;
   }
 
   Future<bool> _showBluetoothDialog() async {
-    return await showDialog<bool>(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: const Text('Aktifkan Bluetooth'),
-                content: const Text(
-                  'Bluetooth perlu diaktifkan untuk menghubungkan printer thermal. Silakan aktifkan Bluetooth di pengaturan perangkat Anda.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Batal'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Pengaturan'),
-                  ),
-                ],
-              ),
-        ) ??
-        false;
+    final res = await CustomConfirmationDialog.show(
+      context,
+      icon: Icons.bluetooth_disabled_rounded,
+      iconColor: const Color(0xFFD97706),
+      iconBgColor: const Color(0xFFFEF3C7),
+      title: 'Aktifkan Bluetooth',
+      message: 'Bluetooth perangkat belum aktif. Silakan aktifkan Bluetooth agar dapat terhubung dengan printer thermal.',
+      confirmLabel: 'Buka Pengaturan',
+      cancelLabel: 'Batal',
+    );
+    return res ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Setting Printer'),
+      backgroundColor: AppColors.background,
+      appBar: const CustomAppBar(title: 'Pengaturan Printer'),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 1. Status Banner Card
+            _buildStatusHeader(),
+            const SizedBox(height: 20),
+
+            // 2. Scan Bluetooth Section
             _buildScanSection(),
             const SizedBox(height: 20),
-            if (_availablePrinters.isNotEmpty) _buildAvailableSection(),
-            if (_availablePrinters.isNotEmpty) const SizedBox(height: 20),
+
+            // 3. Available Printers (if found)
+            if (_availablePrinters.isNotEmpty) ...[
+              _buildAvailableSection(),
+              const SizedBox(height: 20),
+            ],
+
+            // 4. Saved Printer Section
             _buildSavedSection(),
             const SizedBox(height: 20),
+
+            // 5. Test Print Section
             _buildTestSection(),
           ],
         ),
@@ -284,19 +285,123 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
     );
   }
 
+  // Header Banner showing current status
+  Widget _buildStatusHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFFFF7ED),
+            const Color(0xFFFFEDD5).withValues(alpha: 0.5),
+            AppColors.white,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFFFE8D6)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: _isConnected
+                  ? const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF059669)])
+                  : AppColors.amberGradient,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: (_isConnected ? const Color(0xFF10B981) : AppColors.primary).withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(
+              _isConnected ? Icons.print_rounded : Icons.print_disabled_rounded,
+              color: Colors.white,
+              size: 26,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: _isConnected ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _isConnected ? 'Printer Terhubung' : 'Belum Ada Koneksi',
+                      style: TextStyle(
+                        color: _isConnected ? const Color(0xFF059669) : const Color(0xFFB45309),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _isConnected && _savedPrinter != null
+                      ? _savedPrinter!.name
+                      : 'Printer Thermal 58mm',
+                  style: AppFonts.bold.copyWith(
+                    color: AppColors.slate900,
+                    fontSize: 16,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  _isConnected
+                      ? 'Siap mencetak struk transaksi penjualan'
+                      : 'Scan Bluetooth untuk menghubungkan printer',
+                  style: AppFonts.regular.copyWith(
+                    color: AppColors.slate500,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Scan Bluetooth Section
   Widget _buildScanSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.slate200),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -308,55 +413,71 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.primaryLight.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.bluetooth_searching, color: AppColors.primary, size: 24),
+                child: const Icon(Icons.bluetooth_searching_rounded, color: AppColors.primary, size: 22),
               ),
-              const SizedBox(width: 12),
-              const Expanded(
+              const SizedBox(width: 14),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Scan Printer Bluetooth',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      'Pindai Perangkat',
+                      style: AppFonts.bold.copyWith(color: AppColors.slate900, fontSize: 16),
                     ),
                     Text(
-                      'Cari printer Bluetooth yang tersedia',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      'Cari printer Bluetooth yang siap dihubungkan',
+                      style: AppFonts.regular.copyWith(color: AppColors.slate500, fontSize: 12),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          SizedBox(
+          const SizedBox(height: 18),
+          Container(
             width: double.infinity,
+            height: 48,
+            decoration: BoxDecoration(
+              gradient: _isScanning ? null : AppColors.amberGradient,
+              color: _isScanning ? AppColors.slate100 : null,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: _isScanning
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+            ),
             child: ElevatedButton.icon(
               onPressed: _isScanning ? null : _startScan,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                elevation: 0,
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              icon:
-                  _isScanning
-                      ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                      : const Icon(Icons.search, size: 18),
+              icon: _isScanning
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      ),
+                    )
+                  : const Icon(Icons.search_rounded, size: 20, color: Colors.white),
               label: Text(
-                _isScanning ? 'Mencari Printer Bluetooth...' : 'Scan Bluetooth',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                _isScanning ? 'Mencari Printer...' : 'Mulai Pindai Bluetooth',
+                style: TextStyle(
+                  color: _isScanning ? AppColors.slate500 : Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -365,19 +486,20 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
     );
   }
 
+  // Available Printers Section
   Widget _buildAvailableSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.slate200),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -389,15 +511,18 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFBBF7D0)),
                 ),
-                child: const Icon(Icons.bluetooth_searching, color: Colors.green, size: 20),
+                child: const Icon(Icons.devices_rounded, color: Color(0xFF16A34A), size: 18),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Printer Ditemukan',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              Expanded(
+                child: Text(
+                  'Printer Ditemukan (${_availablePrinters.length})',
+                  style: AppFonts.bold.copyWith(color: AppColors.slate900, fontSize: 16),
+                ),
               ),
             ],
           ),
@@ -414,30 +539,37 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
     final isCurrentConnected = isSelected && _isConnected;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
+        color: isCurrentConnected
+            ? const Color(0xFFF0FDF4)
+            : (isSelected ? const Color(0xFFFFFBEB) : AppColors.slate50),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color:
-              isSelected
-                  ? AppColors.primary.withValues(alpha: 0.3)
-                  : Colors.green.withValues(alpha: 0.2),
+          color: isCurrentConnected
+              ? const Color(0xFF86EFAC)
+              : (isSelected ? const Color(0xFFFDE68A) : AppColors.slate200),
         ),
-        borderRadius: BorderRadius.circular(8),
-        color:
-            isSelected
-                ? AppColors.primary.withValues(alpha: 0.05)
-                : Colors.green.withValues(alpha: 0.05),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
+              color: isCurrentConnected
+                  ? const Color(0xFFDCFCE7)
+                  : AppColors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isCurrentConnected ? const Color(0xFF86EFAC) : AppColors.slate200,
+              ),
             ),
-            child: const Icon(Icons.print, color: Colors.green, size: 20),
+            child: Icon(
+              Icons.print_rounded,
+              color: isCurrentConnected ? const Color(0xFF16A34A) : AppColors.slate700,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -446,65 +578,60 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
               children: [
                 Text(
                   printer.name,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: AppFonts.bold.copyWith(color: AppColors.slate900, fontSize: 14),
+                  overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 2),
                 Text(
                   'MAC: ${printer.address}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                Text(
-                  isCurrentConnected ? 'Status: Terhubung' : 'Status: Tersedia',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isCurrentConnected ? Colors.green : Colors.grey[700],
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace'),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           ElevatedButton(
             onPressed: isCurrentConnected ? null : () => _connectToPrinter(printer),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: isCurrentConnected ? const Color(0xFF16A34A) : AppColors.primary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               elevation: 0,
             ),
-            child:
-                isBusy
-                    ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                    : const Text(
-                      'Hubungkan',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            child: isBusy
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
+                  )
+                : Text(
+                    isCurrentConnected ? 'Terhubung' : 'Hubungkan',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
           ),
         ],
       ),
     );
   }
 
+  // Saved Printer Section
   Widget _buildSavedSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.slate200),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -516,21 +643,21 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppColors.primaryLight.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.print, color: AppColors.primary, size: 20),
+                child: const Icon(Icons.bookmark_added_rounded, color: AppColors.primaryDark, size: 18),
               ),
               const SizedBox(width: 12),
-              const Text(
+              Text(
                 'Printer Tersimpan',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: AppFonts.bold.copyWith(color: AppColors.slate900, fontSize: 16),
               ),
             ],
           ),
           const SizedBox(height: 16),
           if (_savedPrinter == null)
-            _buildEmptyState('Belum ada printer tersimpan')
+            _buildEmptyState('Belum ada printer yang tersimpan di aplikasi.')
           else
             _buildSavedPrinterCard(_savedPrinter!),
         ],
@@ -542,17 +669,11 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
+        color: _isConnected ? const Color(0xFFF0FDF4) : AppColors.slate50,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color:
-              _isConnected
-                  ? AppColors.primary.withValues(alpha: 0.3)
-                  : Colors.grey.withValues(alpha: 0.2),
+          color: _isConnected ? const Color(0xFF86EFAC) : AppColors.slate200,
         ),
-        borderRadius: BorderRadius.circular(8),
-        color:
-            _isConnected
-                ? AppColors.primary.withValues(alpha: 0.05)
-                : Colors.grey.withValues(alpha: 0.05),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -561,71 +682,105 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  printer.name,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      printer.name,
+                      style: AppFonts.bold.copyWith(color: AppColors.slate900, fontSize: 15),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'MAC: ${printer.address}',
+                      style: const TextStyle(fontSize: 11, color: AppColors.slate500, fontFamily: 'monospace'),
+                    ),
+                  ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color:
-                      _isConnected
-                          ? Colors.green.withValues(alpha: 0.1)
-                          : Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  _isConnected ? 'Terhubung' : 'Tidak Terhubung',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: _isConnected ? Colors.green : Colors.orange,
-                    fontWeight: FontWeight.w600,
+                  color: _isConnected ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: _isConnected ? const Color(0xFF86EFAC) : const Color(0xFFFDE68A),
                   ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: _isConnected ? const Color(0xFF16A34A) : const Color(0xFFD97706),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _isConnected ? 'Terhubung' : 'Terputus',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: _isConnected ? const Color(0xFF16A34A) : const Color(0xFFB45309),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text('MAC: ${printer.address}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                child: ElevatedButton(
-                  onPressed:
-                      _isDisconnecting
-                          ? null
-                          : _isConnected
+                child: ElevatedButton.icon(
+                  onPressed: _isDisconnecting
+                      ? null
+                      : _isConnected
                           ? _disconnectPrinter
                           : () => _connectToPrinter(printer),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _isConnected ? Colors.orange : AppColors.primary,
+                    backgroundColor: _isConnected ? const Color(0xFFEA580C) : AppColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     elevation: 0,
                   ),
-                  child:
-                      _isDisconnecting
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                          : Text(
-                            _isConnected ? 'Putuskan' : 'Hubungkan',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  icon: _isDisconnecting
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
+                        )
+                      : Icon(
+                          _isConnected ? Icons.link_off_rounded : Icons.link_rounded,
+                          size: 18,
+                        ),
+                  label: Text(
+                    _isConnected ? 'Putuskan Koneksi' : 'Hubungkan Kembali',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-              const SizedBox(width: 12),
-              TextButton(
+              const SizedBox(width: 10),
+              OutlinedButton.icon(
                 onPressed: _isDisconnecting ? null : _forgetPrinter,
-                child: const Text('Lupakan', style: TextStyle(fontSize: 12)),
+                icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.error),
+                label: const Text(
+                  'Lupakan',
+                  style: TextStyle(color: AppColors.error, fontSize: 12, fontWeight: FontWeight.w600),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  side: const BorderSide(color: Color(0xFFFECACA)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  backgroundColor: const Color(0xFFFEF2F2),
+                ),
               ),
             ],
           ),
@@ -637,35 +792,48 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
   Widget _buildEmptyState(String message) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.slate50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.slate200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(Icons.print_disabled, color: Colors.grey[400], size: 40),
-          const SizedBox(height: 8),
-          Text(message, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: const BoxDecoration(
+              color: AppColors.white,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.print_disabled_outlined, color: AppColors.slate400, size: 32),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: AppFonts.regular.copyWith(color: AppColors.slate500, fontSize: 12),
+          ),
         ],
       ),
     );
   }
 
+  // Test Print Section
   Widget _buildTestSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.slate200),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -677,20 +845,24 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: const Color(0xFFFFFBEB),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFFDE68A)),
                 ),
-                child: const Icon(Icons.print_outlined, color: Colors.orange, size: 20),
+                child: const Icon(Icons.receipt_long_rounded, color: Color(0xFFD97706), size: 18),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Test Print', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                     Text(
-                      'Uji coba print untuk memastikan printer bekerja',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      'Uji Coba Cetak (Test Print)',
+                      style: AppFonts.bold.copyWith(color: AppColors.slate900, fontSize: 16),
+                    ),
+                    Text(
+                      'Pastikan kertas thermal dan koneksi printer bekerja',
+                      style: AppFonts.regular.copyWith(color: AppColors.slate500, fontSize: 12),
                     ),
                   ],
                 ),
@@ -698,21 +870,42 @@ class _SettingPrinterViewState extends State<SettingPrinterView> {
             ],
           ),
           const SizedBox(height: 16),
-          SizedBox(
+          Container(
             width: double.infinity,
+            height: 46,
+            decoration: BoxDecoration(
+              gradient: _isConnected ? AppColors.amberGradient : null,
+              color: _isConnected ? null : AppColors.slate100,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: _isConnected
+                  ? [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                  : null,
+            ),
             child: ElevatedButton.icon(
               onPressed: _isConnected ? _printTest : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                elevation: 0,
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              icon: const Icon(Icons.print, size: 18),
-              label: const Text(
-                'Print Test Page',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              icon: Icon(
+                Icons.print_rounded,
+                size: 18,
+                color: _isConnected ? Colors.white : AppColors.slate400,
+              ),
+              label: Text(
+                _isConnected ? 'Cetak Sample Struk Penjualan' : 'Printer Belum Terhubung',
+                style: TextStyle(
+                  color: _isConnected ? Colors.white : AppColors.slate400,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
